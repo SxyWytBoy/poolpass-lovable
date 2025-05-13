@@ -1,11 +1,19 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
   
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-95 backdrop-blur-sm shadow-sm">
@@ -13,16 +21,11 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <div className="relative">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-pool-accent to-pool-primary rounded-full blur opacity-50"></div>
-              <div className="relative bg-white rounded-full p-1">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12Z" stroke="#0891b2" strokeWidth="2" />
-                  <path d="M7 12C7 14.7614 9.23858 17 12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7" stroke="#0891b2" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </div>
-            </div>
-            <span className="ml-2 text-xl font-bold bg-gradient-to-r from-pool-primary to-pool-accent bg-clip-text text-transparent">PoolPass</span>
+            <img 
+              src="/lovable-uploads/000fe6ae-768e-4edb-84b8-d2ff9a4fb878.png" 
+              alt="PoolPass Logo" 
+              className="h-10 md:h-12" 
+            />
           </Link>
           
           {/* Desktop Navigation */}
@@ -40,12 +43,34 @@ const Navbar = () => {
           
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" className="text-gray-700 hover:text-pool-primary">
-              Sign In
-            </Button>
-            <Button className="bg-pool-primary hover:bg-pool-secondary text-white">
-              Sign Up
-            </Button>
+            {user ? (
+              <>
+                <Link to={user.user_metadata?.user_type === 'host' ? '/host-dashboard' : '/dashboard'}>
+                  <Button variant="ghost" className="text-gray-700 hover:text-pool-primary">
+                    Dashboard
+                  </Button>
+                </Link>
+                <Button 
+                  onClick={handleSignOut}
+                  className="bg-pool-primary hover:bg-pool-secondary text-white"
+                >
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link to="/sign-in">
+                  <Button variant="ghost" className="text-gray-700 hover:text-pool-primary">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/sign-up">
+                  <Button className="bg-pool-primary hover:bg-pool-secondary text-white">
+                    Sign Up
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
           
           {/* Mobile Menu Button */}
@@ -80,12 +105,34 @@ const Navbar = () => {
               Become a Host
             </Link>
             <div className="pt-4 flex flex-col space-y-2">
-              <Button variant="outline" className="w-full justify-center">
-                Sign In
-              </Button>
-              <Button className="w-full justify-center bg-pool-primary hover:bg-pool-secondary">
-                Sign Up
-              </Button>
+              {user ? (
+                <>
+                  <Link to={user.user_metadata?.user_type === 'host' ? '/host-dashboard' : '/dashboard'}>
+                    <Button variant="outline" className="w-full justify-center">
+                      Dashboard
+                    </Button>
+                  </Link>
+                  <Button 
+                    onClick={handleSignOut}
+                    className="w-full justify-center bg-pool-primary hover:bg-pool-secondary"
+                  >
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/sign-in">
+                    <Button variant="outline" className="w-full justify-center">
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link to="/sign-up">
+                    <Button className="w-full justify-center bg-pool-primary hover:bg-pool-secondary">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
