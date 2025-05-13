@@ -16,6 +16,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
+import { Pool } from '@/types';
 
 // Mock data for a fallback when API is not available
 const poolDataFallback = {
@@ -26,7 +27,7 @@ const poolDataFallback = {
   price: 45,
   rating: 4.9,
   reviews: 128,
-  indoorOutdoor: "indoor" as const,
+  indoor_outdoor: "indoor" as const,
   images: [
     "https://images.unsplash.com/photo-1572331165267-854da2b10ccc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
     "https://images.unsplash.com/photo-1575429198097-0414ec08e8cd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
@@ -49,7 +50,7 @@ const poolDataFallback = {
     { id: "drinks", name: "Welcome Drinks", price: 8 },
     { id: "instructor", name: "Swimming Instructor (30 min)", price: 25 },
   ],
-  poolDetails: {
+  pool_details: {
     size: "15m x 5m",
     depth: "1.4m constant",
     temperature: "29°C / 84°F",
@@ -61,7 +62,7 @@ const poolDataFallback = {
     responseTime: "Within an hour",
     joinedDate: "March 2022"
   },
-  availableTimeSlots: [
+  available_time_slots: [
     { id: "1", time: "09:00 - 10:00" },
     { id: "2", time: "10:30 - 11:30" },
     { id: "3", time: "12:00 - 13:00" },
@@ -98,6 +99,17 @@ const poolDataFallback = {
   ]
 };
 
+// Type for processed pool data
+interface ProcessedPoolData extends Pool {
+  reviewsData?: any[];
+  host: {
+    name: string;
+    image: string;
+    responseTime: string;
+    joinedDate: string;
+  };
+}
+
 const PoolDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
@@ -108,7 +120,7 @@ const PoolDetail = () => {
   const [mainImageIndex, setMainImageIndex] = useState(0);
 
   // Fetch pool data
-  const { data: poolData, isLoading } = useQuery({
+  const { data: rawPoolData, isLoading } = useQuery({
     queryKey: ['pool', id],
     queryFn: async () => {
       try {
@@ -126,7 +138,36 @@ const PoolDetail = () => {
         
         if (error) throw error;
         
-        return data || poolDataFallback;
+        if (data) {
+          // Process the data to match our expected format
+          return {
+            ...data,
+            amenities: Array.isArray(data.amenities) ? data.amenities : [],
+            extras: Array.isArray(data.extras) ? data.extras : [],
+            pool_details: data.pool_details || {
+              size: "Unknown",
+              depth: "Unknown",
+              temperature: "Unknown",
+              maxGuests: 1
+            },
+            // If host information exists, format it, otherwise use fallback
+            host: {
+              name: data.host?.[0]?.profiles?.full_name || "Host",
+              image: data.host?.[0]?.profiles?.avatar_url || "https://via.placeholder.com/40",
+              responseTime: "Within a day",
+              joinedDate: new Date(data.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
+            },
+            available_time_slots: [
+              { id: "1", time: "09:00 - 10:00" },
+              { id: "2", time: "10:30 - 11:30" },
+              { id: "3", time: "12:00 - 13:00" },
+              { id: "4", time: "14:00 - 15:00" },
+              { id: "5", time: "15:30 - 16:30" },
+            ]
+          };
+        }
+        
+        return poolDataFallback;
       } catch (error) {
         console.error("Error fetching pool:", error);
         return poolDataFallback;
@@ -135,8 +176,11 @@ const PoolDetail = () => {
     enabled: !!id,
   });
 
+  // Process pool data to ensure it has all the required fields
+  const poolData: ProcessedPoolData = rawPoolData as ProcessedPoolData;
+
   // Fetch reviews for this pool
-  const { data: reviewsData } = useQuery({
+  const { data: reviews } = useQuery({
     queryKey: ['reviews', id],
     queryFn: async () => {
       try {
@@ -195,13 +239,15 @@ const PoolDetail = () => {
     }
     
     try {
+      const timeSlot = poolData.available_time_slots?.find((slot: any) => slot.id === selectedTimeSlot)?.time || '';
+      
       const { data, error } = await supabase
         .from('bookings')
         .insert({
           pool_id: id || '',
           user_id: user.id,
           date: selectedDate.toISOString().split('T')[0],
-          time_slot: poolData.availableTimeSlots.find((slot: any) => slot.id === selectedTimeSlot)?.time || '',
+          time_slot: timeSlot,
           extras: selectedExtras,
           total_price: totalPrice,
           status: 'pending'
@@ -241,8 +287,7 @@ const PoolDetail = () => {
   }
 
   const pool = poolData || poolDataFallback;
-  const reviews = reviewsData || pool.reviewsData;
-
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -319,25 +364,25 @@ const PoolDetail = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="bg-gray-50 p-3 rounded-lg text-center">
                     <p className="text-sm text-gray-500">Size</p>
-                    <p className="font-medium">{pool.poolDetails?.size}</p>
+                    <p className="font-medium">{pool.pool_details?.size}</p>
                   </div>
                   <div className="bg-gray-50 p-3 rounded-lg text-center">
                     <p className="text-sm text-gray-500">Depth</p>
-                    <p className="font-medium">{pool.poolDetails?.depth}</p>
+                    <p className="font-medium">{pool.pool_details?.depth}</p>
                   </div>
                   <div className="bg-gray-50 p-3 rounded-lg text-center">
                     <p className="text-sm text-gray-500">Temperature</p>
-                    <p className="font-medium">{pool.poolDetails?.temperature}</p>
+                    <p className="font-medium">{pool.pool_details?.temperature}</p>
                   </div>
                   <div className="bg-gray-50 p-3 rounded-lg text-center">
                     <p className="text-sm text-gray-500">Max Guests</p>
-                    <p className="font-medium">{pool.poolDetails?.maxGuests}</p>
+                    <p className="font-medium">{pool.pool_details?.maxGuests}</p>
                   </div>
                 </div>
                 
                 <h3 className="text-xl font-semibold mb-4">Amenities</h3>
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  {pool.amenities?.map((amenity: { name: string, included: boolean }, index: number) => (
+                  {Array.isArray(pool.amenities) && pool.amenities.map((amenity: { name: string, included: boolean }, index: number) => (
                     <div key={index} className="flex items-center">
                       {amenity.included ? (
                         <Check className="h-5 w-5 text-green-500 mr-2" />
@@ -444,7 +489,7 @@ const PoolDetail = () => {
                   <div className="mb-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Select Time Slot</label>
                     <div className="grid grid-cols-2 gap-2">
-                      {pool.availableTimeSlots?.map((slot: { id: string, time: string }) => (
+                      {pool.available_time_slots && pool.available_time_slots.map((slot: { id: string, time: string }) => (
                         <button
                           key={slot.id}
                           type="button"
@@ -473,7 +518,7 @@ const PoolDetail = () => {
                     </TabsList>
                     <TabsContent value="extras">
                       <div className="space-y-3">
-                        {pool.extras?.map((extra: { id: string, name: string, price: number }) => (
+                        {Array.isArray(pool.extras) && pool.extras.map((extra: { id: string, name: string, price: number }) => (
                           <div key={extra.id} className="flex items-center justify-between">
                             <div className="flex items-center">
                               <Checkbox 
@@ -493,7 +538,7 @@ const PoolDetail = () => {
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Number of Guests</span>
                         <select className="border rounded-md p-1">
-                          {[...Array(pool.poolDetails?.maxGuests || 1)].map((_, i) => (
+                          {[...Array(pool.pool_details?.maxGuests || 1)].map((_, i) => (
                             <option key={i} value={i + 1}>
                               {i + 1} {i === 0 ? 'guest' : 'guests'}
                             </option>

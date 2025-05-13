@@ -16,11 +16,11 @@ export type Pool = {
   price: number;
   rating: number;
   reviews: number;
-  indoorOutdoor: 'indoor' | 'outdoor' | 'both';
+  indoor_outdoor: 'indoor' | 'outdoor' | 'both';
   images: string[];
   amenities: { name: string; included: boolean }[];
   extras: { id: string; name: string; price: number }[];
-  poolDetails: {
+  pool_details: {
     size: string;
     depth: string;
     temperature: string;
@@ -33,7 +33,7 @@ export type Pool = {
     responseTime: string;
     joinedDate: string;
   };
-  availableTimeSlots: { id: string; time: string }[];
+  available_time_slots: { id: string; time: string }[];
   host_id: string;
   created_at: string;
 };
