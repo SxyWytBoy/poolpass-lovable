@@ -12,9 +12,13 @@ import { format } from 'date-fns';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/components/ui/use-toast';
 
-// Mock data for a specific pool
-const poolData = {
+// Mock data for a fallback when API is not available
+const poolDataFallback = {
   id: "1",
   name: "Luxury Indoor Pool & Spa",
   description: "This stunning indoor pool and spa is located in a private residence in Kensington. The heated pool is 15m x 5m with a constant depth of 1.4m, perfect for swimming laps or relaxing. The space includes loungers, changing facilities, and optional towel service. The ambient lighting and modern design create a serene atmosphere for your swimming experience.",
@@ -66,7 +70,7 @@ const poolData = {
     { id: "6", time: "17:00 - 18:00" },
     { id: "7", time: "19:00 - 20:00" },
   ],
-  reviews: [
+  reviewsData: [
     {
       id: "1",
       user: "Sarah",
@@ -96,11 +100,66 @@ const poolData = {
 
 const PoolDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
   const [mainImageIndex, setMainImageIndex] = useState(0);
-  const [isBookingOpen, setIsBookingOpen] = useState(false);
+
+  // Fetch pool data
+  const { data: poolData, isLoading } = useQuery({
+    queryKey: ['pool', id],
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase
+          .from('pools')
+          .select(`
+            *,
+            host:host_id (
+              id,
+              profiles:id (full_name, avatar_url)
+            )
+          `)
+          .eq('id', id)
+          .single();
+        
+        if (error) throw error;
+        
+        return data || poolDataFallback;
+      } catch (error) {
+        console.error("Error fetching pool:", error);
+        return poolDataFallback;
+      }
+    },
+    enabled: !!id,
+  });
+
+  // Fetch reviews for this pool
+  const { data: reviewsData } = useQuery({
+    queryKey: ['reviews', id],
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase
+          .from('reviews')
+          .select(`
+            *,
+            profiles:user_id (full_name, avatar_url)
+          `)
+          .eq('pool_id', id)
+          .order('created_at', { ascending: false })
+          .limit(10);
+        
+        if (error) throw error;
+        
+        return data || poolDataFallback.reviewsData;
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+        return poolDataFallback.reviewsData;
+      }
+    },
+    enabled: !!id,
+  });
   
   const toggleExtra = (extraId: string) => {
     if (selectedExtras.includes(extraId)) {
@@ -111,27 +170,78 @@ const PoolDetail = () => {
   };
   
   // Calculate total price
-  const basePrice = poolData.price;
+  const basePrice = poolData?.price || 0;
   const extrasPrice = selectedExtras.reduce((total, extraId) => {
-    const extra = poolData.extras.find(e => e.id === extraId);
+    const extra = poolData?.extras?.find((e: any) => e.id === extraId);
     return total + (extra ? extra.price : 0);
   }, 0);
   const totalPrice = basePrice + extrasPrice;
-  
-  const handleBookNow = () => {
-    if (!selectedDate || !selectedTimeSlot) {
-      alert("Please select a date and time slot");
+
+  const handleBookNow = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to book this pool",
+      });
       return;
     }
-    console.log("Booking confirmed", {
-      pool: poolData,
-      date: selectedDate,
-      timeSlot: selectedTimeSlot,
-      extras: selectedExtras,
-      totalPrice
-    });
-    // In a real app, this would navigate to the checkout/payment page
+
+    if (!selectedDate || !selectedTimeSlot) {
+      toast({
+        title: "Please select a date and time slot",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      const { data, error } = await supabase
+        .from('bookings')
+        .insert({
+          pool_id: id || '',
+          user_id: user.id,
+          date: selectedDate.toISOString().split('T')[0],
+          time_slot: poolData.availableTimeSlots.find((slot: any) => slot.id === selectedTimeSlot)?.time || '',
+          extras: selectedExtras,
+          total_price: totalPrice,
+          status: 'pending'
+        });
+        
+      if (error) throw error;
+      
+      toast({
+        title: "Booking successful!",
+        description: "You can view your booking in your dashboard",
+      });
+      
+      // Reset form
+      setSelectedDate(undefined);
+      setSelectedTimeSlot(null);
+      setSelectedExtras([]);
+    } catch (error) {
+      console.error("Error booking pool:", error);
+      toast({
+        title: "Booking failed",
+        description: "There was an error processing your booking",
+        variant: "destructive",
+      });
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow flex items-center justify-center">
+          <p>Loading pool details...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const pool = poolData || poolDataFallback;
+  const reviews = reviewsData || pool.reviewsData;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -140,16 +250,16 @@ const PoolDetail = () => {
       <main className="flex-grow pt-20">
         {/* Photo Gallery */}
         <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold mb-4">{poolData.name}</h1>
+          <h1 className="text-3xl font-bold mb-4">{pool.name}</h1>
           <div className="flex items-center text-gray-600 mb-6">
             <div className="flex items-center mr-4">
               <Star className="h-4 w-4 fill-yellow-400 stroke-yellow-400 mr-1" />
-              <span className="font-medium">{poolData.rating.toFixed(1)}</span>
-              <span className="text-gray-500 ml-1">({poolData.reviews} reviews)</span>
+              <span className="font-medium">{pool.rating?.toFixed(1)}</span>
+              <span className="text-gray-500 ml-1">({pool.reviews} reviews)</span>
             </div>
             <div className="flex items-center">
               <MapPin className="h-4 w-4 mr-1" />
-              <span>{poolData.location}</span>
+              <span>{pool.location}</span>
             </div>
           </div>
           
@@ -157,15 +267,15 @@ const PoolDetail = () => {
             {/* Main Image */}
             <div className="md:col-span-8 h-[400px] md:h-[500px] rounded-lg overflow-hidden">
               <img 
-                src={poolData.images[mainImageIndex]} 
-                alt={poolData.name} 
+                src={pool.images[mainImageIndex]} 
+                alt={pool.name} 
                 className="w-full h-full object-cover"
               />
             </div>
             
             {/* Thumbnails */}
             <div className="md:col-span-4 grid grid-cols-2 gap-2 h-[400px] md:h-[500px]">
-              {poolData.images.slice(0, 4).map((img, index) => (
+              {pool.images.slice(0, 4).map((img: string, index: number) => (
                 index !== mainImageIndex && (
                   <div 
                     key={index}
@@ -174,7 +284,7 @@ const PoolDetail = () => {
                   >
                     <img 
                       src={img} 
-                      alt={`${poolData.name} - view ${index + 1}`}
+                      alt={`${pool.name} - view ${index + 1}`}
                       className="w-full h-full object-cover hover:opacity-90 transition-opacity"
                     />
                   </div>
@@ -193,41 +303,41 @@ const PoolDetail = () => {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h2 className="text-2xl font-semibold">About this pool</h2>
-                    <p className="text-gray-600">Hosted by {poolData.host.name}</p>
+                    <p className="text-gray-600">Hosted by {pool.host?.name}</p>
                   </div>
                   <img 
-                    src={poolData.host.image} 
-                    alt={poolData.host.name}
+                    src={pool.host?.image} 
+                    alt={pool.host?.name}
                     className="w-12 h-12 rounded-full"
                   />
                 </div>
                 
                 <div className="mb-6">
-                  <p className="text-gray-700">{poolData.description}</p>
+                  <p className="text-gray-700">{pool.description}</p>
                 </div>
                 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="bg-gray-50 p-3 rounded-lg text-center">
                     <p className="text-sm text-gray-500">Size</p>
-                    <p className="font-medium">{poolData.poolDetails.size}</p>
+                    <p className="font-medium">{pool.poolDetails?.size}</p>
                   </div>
                   <div className="bg-gray-50 p-3 rounded-lg text-center">
                     <p className="text-sm text-gray-500">Depth</p>
-                    <p className="font-medium">{poolData.poolDetails.depth}</p>
+                    <p className="font-medium">{pool.poolDetails?.depth}</p>
                   </div>
                   <div className="bg-gray-50 p-3 rounded-lg text-center">
                     <p className="text-sm text-gray-500">Temperature</p>
-                    <p className="font-medium">{poolData.poolDetails.temperature}</p>
+                    <p className="font-medium">{pool.poolDetails?.temperature}</p>
                   </div>
                   <div className="bg-gray-50 p-3 rounded-lg text-center">
                     <p className="text-sm text-gray-500">Max Guests</p>
-                    <p className="font-medium">{poolData.poolDetails.maxGuests}</p>
+                    <p className="font-medium">{pool.poolDetails?.maxGuests}</p>
                   </div>
                 </div>
                 
                 <h3 className="text-xl font-semibold mb-4">Amenities</h3>
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  {poolData.amenities.map((amenity, index) => (
+                  {pool.amenities?.map((amenity: { name: string, included: boolean }, index: number) => (
                     <div key={index} className="flex items-center">
                       {amenity.included ? (
                         <Check className="h-5 w-5 text-green-500 mr-2" />
@@ -248,22 +358,24 @@ const PoolDetail = () => {
               <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
                 <div className="flex items-center mb-6">
                   <Star className="h-5 w-5 fill-yellow-400 stroke-yellow-400 mr-2" />
-                  <span className="text-xl font-semibold mr-1">{poolData.rating.toFixed(1)}</span>
-                  <span className="text-gray-700">· {poolData.reviews} reviews</span>
+                  <span className="text-xl font-semibold mr-1">{pool.rating?.toFixed(1)}</span>
+                  <span className="text-gray-700">· {pool.reviews} reviews</span>
                 </div>
                 
                 <div className="space-y-6">
-                  {poolData.reviews.map((review) => (
+                  {reviews && reviews.map((review: any) => (
                     <div key={review.id} className="pb-6 border-b border-gray-100 last:border-0">
                       <div className="flex items-center mb-2">
                         <img 
-                          src={review.avatar} 
-                          alt={review.user}
+                          src={review.avatar || review.profiles?.avatar_url || "https://via.placeholder.com/40"} 
+                          alt={review.user || review.profiles?.full_name || "User"}
                           className="w-10 h-10 rounded-full mr-3"
                         />
                         <div>
-                          <p className="font-medium">{review.user}</p>
-                          <p className="text-sm text-gray-500">{review.date}</p>
+                          <p className="font-medium">{review.user || review.profiles?.full_name || "User"}</p>
+                          <p className="text-sm text-gray-500">
+                            {review.date || new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
+                          </p>
                         </div>
                       </div>
                       <div className="flex mb-2">
@@ -289,13 +401,13 @@ const PoolDetail = () => {
               <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 sticky top-24">
                 <div className="flex justify-between items-center mb-6">
                   <div className="text-2xl font-semibold text-pool-primary">
-                    £{poolData.price}
+                    £{pool.price}
                     <span className="text-sm font-normal text-gray-600">/hour</span>
                   </div>
                   <div className="flex items-center">
                     <Star className="h-4 w-4 fill-yellow-400 stroke-yellow-400 mr-1" />
-                    <span className="font-medium mr-1">{poolData.rating.toFixed(1)}</span>
-                    <span className="text-xs text-gray-500">({poolData.reviews})</span>
+                    <span className="font-medium mr-1">{pool.rating?.toFixed(1)}</span>
+                    <span className="text-xs text-gray-500">({pool.reviews})</span>
                   </div>
                 </div>
                 
@@ -332,7 +444,7 @@ const PoolDetail = () => {
                   <div className="mb-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Select Time Slot</label>
                     <div className="grid grid-cols-2 gap-2">
-                      {poolData.availableTimeSlots.map((slot) => (
+                      {pool.availableTimeSlots?.map((slot: { id: string, time: string }) => (
                         <button
                           key={slot.id}
                           type="button"
@@ -361,7 +473,7 @@ const PoolDetail = () => {
                     </TabsList>
                     <TabsContent value="extras">
                       <div className="space-y-3">
-                        {poolData.extras.map((extra) => (
+                        {pool.extras?.map((extra: { id: string, name: string, price: number }) => (
                           <div key={extra.id} className="flex items-center justify-between">
                             <div className="flex items-center">
                               <Checkbox 
@@ -381,7 +493,7 @@ const PoolDetail = () => {
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Number of Guests</span>
                         <select className="border rounded-md p-1">
-                          {[...Array(poolData.poolDetails.maxGuests)].map((_, i) => (
+                          {[...Array(pool.poolDetails?.maxGuests || 1)].map((_, i) => (
                             <option key={i} value={i + 1}>
                               {i + 1} {i === 0 ? 'guest' : 'guests'}
                             </option>
@@ -415,7 +527,7 @@ const PoolDetail = () => {
                   onClick={handleBookNow}
                   disabled={!selectedDate || !selectedTimeSlot}
                 >
-                  Book Now
+                  {user ? 'Book Now' : 'Sign in to Book'}
                 </Button>
                 
                 <p className="text-xs text-center text-gray-500 mt-4">
