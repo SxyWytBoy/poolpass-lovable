@@ -1,14 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import PoolCard from '@/components/PoolCard';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import SearchBar from '@/components/SearchBar';
+import MobileFilterToggle from '@/components/pools/MobileFilterToggle';
+import PoolFilters from '@/components/pools/PoolFilters';
+import PoolGrid, { PoolItem } from '@/components/pools/PoolGrid';
+import PoolResultsHeader from '@/components/pools/PoolResultsHeader';
+import SearchHeader from '@/components/pools/SearchHeader';
+import { useToast } from '@/components/ui/use-toast';
 
 // Mock pool data
 const poolsData = [
@@ -100,13 +99,19 @@ const Pools = () => {
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [poolType, setPoolType] = useState<string>("all");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [sortOrder, setSortOrder] = useState<string>("price_asc");
+  const { toast } = useToast();
   
-  const handleAmenityChange = (amenity: string) => {
-    if (selectedAmenities.includes(amenity)) {
-      setSelectedAmenities(selectedAmenities.filter(a => a !== amenity));
-    } else {
-      setSelectedAmenities([...selectedAmenities, amenity]);
-    }
+  // Reset filters function
+  const resetFilters = () => {
+    setPriceRange([0, 100]);
+    setSelectedAmenities([]);
+    setPoolType("all");
+    
+    toast({
+      title: "Filters reset",
+      description: "All filters have been reset to default values.",
+    });
   };
   
   // Filter pools based on selected filters
@@ -128,172 +133,69 @@ const Pools = () => {
     return true;
   });
   
+  // Sort pools based on selected sort option
+  const sortedPools = [...filteredPools].sort((a, b) => {
+    switch (sortOrder) {
+      case "price_desc":
+        return b.price - a.price;
+      case "rating":
+        return b.rating - a.rating;
+      case "reviews":
+        return b.reviews - a.reviews;
+      case "price_asc":
+      default:
+        return a.price - b.price;
+    }
+  });
+  
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortOrder(e.target.value);
+  };
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
       <main className="flex-grow pt-20">
         {/* Search Header */}
-        <div className="bg-pool-light py-6">
-          <div className="container mx-auto px-4">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">Find the Perfect Pool</h1>
-            <SearchBar className="max-w-4xl" />
-          </div>
-        </div>
+        <SearchHeader />
         
         <div className="container mx-auto px-4 py-8">
           <div className="lg:flex gap-6">
-            {/* Filters - Mobile Toggle */}
-            <div className="lg:hidden mb-4">
-              <Button 
-                onClick={() => setIsFilterOpen(!isFilterOpen)} 
-                variant="outline" 
-                className="w-full mb-4"
-              >
-                {isFilterOpen ? "Hide Filters" : "Show Filters"} 
-              </Button>
-            </div>
+            {/* Mobile Filter Toggle */}
+            <MobileFilterToggle 
+              isFilterOpen={isFilterOpen} 
+              toggleFilter={() => setIsFilterOpen(!isFilterOpen)} 
+            />
             
             {/* Filters Sidebar */}
             <aside className={`lg:w-1/4 space-y-6 mb-8 lg:mb-0 ${isFilterOpen ? 'block' : 'hidden lg:block'}`}>
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <h2 className="text-lg font-medium mb-4">Filters</h2>
-                
-                {/* Price Range Filter */}
-                <div className="mb-6">
-                  <h3 className="text-sm font-medium mb-3">Price Range (per hour)</h3>
-                  <div className="px-2">
-                    <Slider
-                      defaultValue={[0, 100]}
-                      min={0}
-                      max={100}
-                      step={5}
-                      value={priceRange}
-                      onValueChange={setPriceRange}
-                      className="mb-2"
-                    />
-                    <div className="flex justify-between text-sm text-gray-500">
-                      <span>£{priceRange[0]}</span>
-                      <span>£{priceRange[1]}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Pool Type Filter */}
-                <div className="mb-6">
-                  <h3 className="text-sm font-medium mb-3">Pool Type</h3>
-                  <RadioGroup value={poolType} onValueChange={setPoolType}>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="all" id="type-all" />
-                      <Label htmlFor="type-all">All Pools</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="indoor" id="type-indoor" />
-                      <Label htmlFor="type-indoor">Indoor Only</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="outdoor" id="type-outdoor" />
-                      <Label htmlFor="type-outdoor">Outdoor Only</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="both" id="type-both" />
-                      <Label htmlFor="type-both">Indoor & Outdoor</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-                
-                {/* Amenities Filter */}
-                <div>
-                  <h3 className="text-sm font-medium mb-3">Amenities</h3>
-                  <div className="space-y-2 max-h-60 overflow-auto">
-                    {amenitiesOptions.map((amenity) => (
-                      <div key={amenity} className="flex items-center">
-                        <Checkbox 
-                          id={`amenity-${amenity}`} 
-                          checked={selectedAmenities.includes(amenity)}
-                          onCheckedChange={() => handleAmenityChange(amenity)}
-                          className="mr-2"
-                        />
-                        <label 
-                          htmlFor={`amenity-${amenity}`}
-                          className="text-sm text-gray-700 cursor-pointer"
-                        >
-                          {amenity}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Clear Filters Button */}
-                <div className="mt-6 pt-4 border-t border-gray-100">
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => {
-                      setPriceRange([0, 100]);
-                      setSelectedAmenities([]);
-                      setPoolType("all");
-                    }}
-                  >
-                    Clear All Filters
-                  </Button>
-                </div>
-              </div>
+              <PoolFilters 
+                priceRange={priceRange}
+                setPriceRange={setPriceRange}
+                selectedAmenities={selectedAmenities}
+                setSelectedAmenities={setSelectedAmenities}
+                poolType={poolType}
+                setPoolType={setPoolType}
+                amenitiesOptions={amenitiesOptions}
+                clearFilters={resetFilters}
+              />
             </aside>
             
             {/* Pool Listings */}
             <div className="lg:w-3/4">
-              {/* Results Count */}
-              <div className="mb-4 flex justify-between items-center">
-                <p className="text-gray-600">
-                  <span className="font-medium">{filteredPools.length}</span> pools available
-                </p>
-                <div className="flex items-center">
-                  <span className="text-sm text-gray-500 mr-2">Sort by:</span>
-                  <select className="text-sm border rounded py-1 px-2">
-                    <option>Price: Low to High</option>
-                    <option>Price: High to Low</option>
-                    <option>Rating</option>
-                    <option>Most Reviewed</option>
-                  </select>
-                </div>
-              </div>
+              {/* Results Header */}
+              <PoolResultsHeader 
+                count={sortedPools.length}
+                sortOrder={sortOrder}
+                onSortChange={handleSortChange}
+              />
               
               {/* Pool Grid */}
-              {filteredPools.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredPools.map((pool) => (
-                    <PoolCard
-                      key={pool.id}
-                      id={pool.id}
-                      name={pool.name}
-                      location={pool.location}
-                      price={pool.price}
-                      rating={pool.rating}
-                      reviews={pool.reviews}
-                      image={pool.image}
-                      indoorOutdoor={pool.indoorOutdoor}
-                      amenities={pool.amenities}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-white p-8 rounded-lg text-center">
-                  <h3 className="text-lg font-medium mb-2">No pools match your filters</h3>
-                  <p className="text-gray-500 mb-4">Try adjusting your filter criteria to find more options.</p>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      setPriceRange([0, 100]);
-                      setSelectedAmenities([]);
-                      setPoolType("all");
-                    }}
-                  >
-                    Reset Filters
-                  </Button>
-                </div>
-              )}
+              <PoolGrid 
+                pools={sortedPools}
+                resetFilters={resetFilters}
+              />
             </div>
           </div>
         </div>
