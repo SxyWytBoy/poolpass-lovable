@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -96,15 +95,32 @@ const poolDataFallback = {
   ]
 };
 
-// Type for processed pool data
+// Type for processed pool data - fixing missing id property in host
 interface ProcessedPoolData extends Omit<Pool, 'host'> {
   reviewsData?: any[];
   host: {
-    id?: string;
+    id?: string | undefined;
     name: string;
     image: string;
     responseTime: string;
     joinedDate: string;
+  };
+}
+
+// Type for review data to fix TypeScript errors
+interface ReviewData {
+  id: string;
+  user?: string;
+  avatar?: string;
+  date?: string;
+  rating: number;
+  comment: string;
+  user_id?: string;
+  pool_id?: string;
+  created_at?: string;
+  profiles?: {
+    full_name?: string;
+    avatar_url?: string;
   };
 }
 
@@ -173,15 +189,15 @@ const PoolDetail = () => {
   const poolData: ProcessedPoolData = rawPoolData as ProcessedPoolData;
 
   // Fetch reviews for this pool
-  const { data: reviews } = useQuery({
+  const { data: reviewsData } = useQuery({
     queryKey: ['reviews', id],
     queryFn: async () => {
       try {
-        const { data, error } = await supabase
+        const { data: reviewData, error } = await supabase
           .from('reviews')
           .select(`
             *,
-            profiles:user_id (*)
+            profiles:user_id (full_name, avatar_url)
           `)
           .eq('pool_id', id)
           .order('created_at', { ascending: false })
@@ -189,7 +205,7 @@ const PoolDetail = () => {
         
         if (error) throw error;
         
-        return data || poolDataFallback.reviewsData;
+        return reviewData || poolDataFallback.reviewsData;
       } catch (error) {
         console.error("Error fetching reviews:", error);
         return poolDataFallback.reviewsData;
@@ -252,7 +268,10 @@ const PoolDetail = () => {
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <div className="flex-grow flex items-center justify-center">
-          <p>Loading pool details...</p>
+          <div className="animate-pulse flex flex-col items-center">
+            <div className="h-8 bg-gray-200 rounded w-48 mb-3"></div>
+            <div className="h-4 bg-gray-200 rounded w-32"></div>
+          </div>
         </div>
         <Footer />
       </div>
@@ -262,11 +281,11 @@ const PoolDetail = () => {
   const pool = poolData || poolDataFallback;
   
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
       
       <main className="flex-grow pt-20">
-        {/* Photo Gallery */}
+        {/* Photo Gallery Section with Animation */}
         <div className="container mx-auto px-4 py-6">
           <PoolHeader 
             name={pool.name} 
@@ -294,7 +313,7 @@ const PoolDetail = () => {
               <ReviewsSection 
                 rating={pool.rating} 
                 reviews={pool.reviews} 
-                reviewsData={reviews || []}
+                reviewsData={reviewsData as ReviewData[]}
               />
             </div>
             

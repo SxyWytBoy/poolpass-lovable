@@ -25,24 +25,31 @@ interface ReviewsSectionProps {
 
 const ReviewsSection = ({ rating = 0, reviews = 0, reviewsData }: ReviewsSectionProps) => {
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-      <div className="flex items-center mb-6">
-        <Star className="h-5 w-5 fill-yellow-400 stroke-yellow-400 mr-2" />
-        <span className="text-xl font-semibold mr-1">{rating.toFixed(1)}</span>
-        <span className="text-gray-700">· {reviews} reviews</span>
+    <div className="bg-white rounded-lg shadow-sm p-6 mb-8 transition-all duration-300 hover:shadow-md">
+      <div className="flex items-center mb-8">
+        <div className="bg-yellow-50 p-3 rounded-full mr-4">
+          <Star className="h-6 w-6 fill-yellow-400 stroke-yellow-400" />
+        </div>
+        <div>
+          <span className="text-xl font-semibold mr-1">{rating.toFixed(1)}</span>
+          <span className="text-gray-700">· {reviews} reviews</span>
+        </div>
       </div>
       
       <div className="space-y-6">
         {reviewsData && reviewsData.map((review: Review) => (
-          <div key={review.id} className="pb-6 border-b border-gray-100 last:border-0">
-            <div className="flex items-center mb-2">
+          <div 
+            key={review.id} 
+            className="pb-6 border-b border-gray-100 last:border-0 transform transition-all duration-300 hover:bg-gray-50 hover:rounded-lg hover:px-3"
+          >
+            <div className="flex items-center mb-3">
               <img 
                 src={review.avatar || (review.profiles && review.profiles.avatar_url) || "https://via.placeholder.com/40"} 
                 alt={review.user || (review.profiles && review.profiles.full_name) || "User"}
-                className="w-10 h-10 rounded-full mr-3"
+                className="w-12 h-12 rounded-full mr-3 border border-gray-200"
               />
               <div>
-                <p className="font-medium">{review.user || (review.profiles && review.profiles.full_name) || "User"}</p>
+                <p className="font-medium text-gray-800">{review.user || (review.profiles && review.profiles.full_name) || "User"}</p>
                 <p className="text-sm text-gray-500">
                   {review.date || (review.created_at && new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }))}
                 </p>
@@ -54,12 +61,14 @@ const ReviewsSection = ({ rating = 0, reviews = 0, reviewsData }: ReviewsSection
                   key={i} 
                   className={cn(
                     "h-4 w-4 mr-0.5", 
-                    i < review.rating ? "fill-yellow-400 stroke-yellow-400" : "stroke-gray-300"
+                    i < review.rating 
+                      ? "fill-yellow-400 stroke-yellow-400" 
+                      : "stroke-gray-300"
                   )}
                 />
               ))}
             </div>
-            <p className="text-gray-700">{review.comment}</p>
+            <p className="text-gray-700 leading-relaxed">{review.comment}</p>
           </div>
         ))}
       </div>
