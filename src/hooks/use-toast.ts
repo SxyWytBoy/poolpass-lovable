@@ -1,5 +1,5 @@
 
-import { toast as sonnerToast } from "sonner";
+import { toast as sonnerToast, type Toast as SonnerToast } from "sonner";
 
 type ToastProps = {
   title?: string;
@@ -12,8 +12,8 @@ export const toast = ({ title, description, action, variant }: ToastProps) => {
   return sonnerToast(title, {
     description,
     action,
-    // Map variant to Sonner's type
-    type: variant === "destructive" ? "error" : "default",
+    // Map variant to Sonner's style
+    style: variant === "destructive" ? { backgroundColor: "red", color: "white" } : {},
   });
 };
 
