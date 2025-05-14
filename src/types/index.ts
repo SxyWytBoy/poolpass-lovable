@@ -27,7 +27,7 @@ export type Pool = {
     maxGuests: number;
   };
   host: {
-    id: string;
+    id?: string;
     name: string;
     image: string;
     responseTime: string;

@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Pool } from '@/types';
 
 // Mock data for a fallback when API is not available
@@ -100,7 +100,7 @@ const poolDataFallback = {
 };
 
 // Type for processed pool data
-interface ProcessedPoolData extends Pool {
+interface ProcessedPoolData extends Omit<Pool, 'host'> {
   reviewsData?: any[];
   host: {
     name: string;
@@ -130,7 +130,7 @@ const PoolDetail = () => {
             *,
             host:host_id (
               id,
-              profiles:id (full_name, avatar_url)
+              profiles (full_name, avatar_url)
             )
           `)
           .eq('id', id)
@@ -152,8 +152,8 @@ const PoolDetail = () => {
             },
             // If host information exists, format it, otherwise use fallback
             host: {
-              name: data.host?.[0]?.profiles?.full_name || "Host",
-              image: data.host?.[0]?.profiles?.avatar_url || "https://via.placeholder.com/40",
+              name: data.host?.profiles?.full_name || "Host",
+              image: data.host?.profiles?.avatar_url || "https://via.placeholder.com/40",
               responseTime: "Within a day",
               joinedDate: new Date(data.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
             },
