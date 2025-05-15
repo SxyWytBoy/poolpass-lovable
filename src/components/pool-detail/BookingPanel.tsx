@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,10 +9,11 @@ import { Label } from '@/components/ui/label';
 import { Star, Calendar as CalendarIcon, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
+import { useBooking } from '@/hooks/use-booking';
 
 interface BookingPanelProps {
   pool: {
+    id?: string;
     price: number;
     rating?: number;
     reviews?: number;
@@ -27,50 +28,28 @@ interface BookingPanelProps {
 }
 
 const BookingPanel = ({ pool, user, onBookNow }: BookingPanelProps) => {
-  const { toast } = useToast();
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
-  const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
+  const {
+    selectedDate,
+    setSelectedDate,
+    selectedTimeSlot,
+    setSelectedTimeSlot,
+    selectedExtras,
+    toggleExtra,
+    handleBookNow,
+    calculateExtrasPrice
+  } = useBooking(pool.id, user?.id, pool.price);
 
-  const toggleExtra = (extraId: string) => {
-    if (selectedExtras.includes(extraId)) {
-      setSelectedExtras(selectedExtras.filter(id => id !== extraId));
-    } else {
-      setSelectedExtras([...selectedExtras, extraId]);
-    }
-  };
-  
   // Calculate total price
   const basePrice = pool?.price || 0;
-  const extrasPrice = selectedExtras.reduce((total, extraId) => {
-    const extra = pool?.extras?.find((e) => e.id === extraId);
-    return total + (extra ? extra.price : 0);
-  }, 0);
+  const extrasPrice = calculateExtrasPrice(selectedExtras, pool?.extras);
   const totalPrice = basePrice + extrasPrice;
 
-  const handleBookNow = () => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to book this pool",
-      });
-      return;
+  const handleBookNowClick = () => {
+    if (selectedDate && selectedTimeSlot) {
+      // Call both the local hook handler and the prop callback
+      handleBookNow(pool?.extras);
+      onBookNow(selectedDate, selectedTimeSlot, selectedExtras);
     }
-
-    if (!selectedDate || !selectedTimeSlot) {
-      toast({
-        title: "Please select a date and time slot",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    onBookNow(selectedDate, selectedTimeSlot, selectedExtras);
-    
-    // Reset form
-    setSelectedDate(undefined);
-    setSelectedTimeSlot(null);
-    setSelectedExtras([]);
   };
 
   return (
@@ -200,7 +179,7 @@ const BookingPanel = ({ pool, user, onBookNow }: BookingPanelProps) => {
       
       <Button 
         className="w-full bg-pool-primary hover:bg-pool-secondary"
-        onClick={handleBookNow}
+        onClick={handleBookNowClick}
         disabled={!selectedDate || !selectedTimeSlot}
       >
         {user ? 'Book Now' : 'Sign in to Book'}
