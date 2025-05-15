@@ -65,6 +65,10 @@ const PoolCard = ({
               src={image} 
               alt={name}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              onError={(e) => {
+                // Fallback for image loading errors
+                (e.target as HTMLImageElement).src = `https://via.placeholder.com/800x600?text=${encodeURIComponent(name)}`;
+              }}
             />
           </AspectRatio>
           <div className="absolute top-3 left-3 flex gap-2">
