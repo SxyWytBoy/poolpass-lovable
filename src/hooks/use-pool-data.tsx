@@ -57,32 +57,8 @@ const poolDataFallback = {
     { id: "6", time: "17:00 - 18:00" },
     { id: "7", time: "19:00 - 20:00" },
   ],
-  reviewsData: [
-    {
-      id: "1",
-      user: "Sarah",
-      avatar: "https://randomuser.me/api/portraits/women/33.jpg",
-      date: "July 2023",
-      rating: 5,
-      comment: "Absolutely stunning pool! The water was perfectly heated and the entire space was spotless. Emma was a gracious host and made sure we had everything we needed. Will definitely be back!"
-    },
-    {
-      id: "2",
-      user: "Michael",
-      avatar: "https://randomuser.me/api/portraits/men/52.jpg",
-      date: "June 2023",
-      rating: 5,
-      comment: "A wonderful experience from start to finish. The pool area is beautiful and so relaxing. It feels very private and luxurious."
-    },
-    {
-      id: "3",
-      user: "Jessica",
-      avatar: "https://randomuser.me/api/portraits/women/67.jpg",
-      date: "May 2023",
-      rating: 4,
-      comment: "Great pool in a convenient location. The changing facilities were clean and well-maintained. The only reason for 4 stars instead of 5 was that the parking was a bit limited."
-    }
-  ]
+  host_id: "host-1",
+  created_at: "2023-01-15",
 };
 
 // Type for processed pool data - fixing missing id property in host
@@ -127,12 +103,18 @@ export const usePoolData = (id: string | undefined) => {
               maxGuests: 1
             },
             // If host information exists, format it, otherwise use fallback
-            host: {
-              id: data.host?.id,
-              name: data.host?.full_name || "Host",
-              image: data.host?.avatar_url || "https://via.placeholder.com/40",
+            host: data.host ? {
+              id: data.host.id,
+              name: data.host.full_name || "Host",
+              image: data.host.avatar_url || "https://via.placeholder.com/40",
               responseTime: "Within a day",
               joinedDate: new Date(data.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
+            } : {
+              id: undefined,
+              name: "Host",
+              image: "https://via.placeholder.com/40",
+              responseTime: "Within a day",
+              joinedDate: "Unknown"
             },
             available_time_slots: [
               { id: "1", time: "09:00 - 10:00" },
