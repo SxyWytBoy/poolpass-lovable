@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -122,6 +123,13 @@ interface ReviewData {
     full_name?: string;
     avatar_url?: string;
   };
+}
+
+// Type for profiles data in reviews
+interface ProfileData {
+  id?: string;
+  full_name?: string;
+  avatar_url?: string;
 }
 
 const PoolDetail = () => {
@@ -280,6 +288,26 @@ const PoolDetail = () => {
 
   const pool = poolData || poolDataFallback;
   
+  // Process the reviews data to ensure proper typing
+  const processedReviewsData = React.useMemo(() => {
+    if (!reviewsData) return [];
+    
+    return (reviewsData as ReviewData[]).map(review => {
+      // Ensure profiles is treated as ProfileData or undefined
+      const profileData = review.profiles as ProfileData | undefined;
+      
+      return {
+        ...review,
+        // Use profile data if available, otherwise use fallbacks
+        user: profileData?.full_name || review.user || "Anonymous",
+        avatar: profileData?.avatar_url || review.avatar || "https://via.placeholder.com/40",
+        date: review.created_at 
+          ? new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }) 
+          : review.date || "Unknown date"
+      };
+    });
+  }, [reviewsData]);
+  
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
@@ -313,7 +341,7 @@ const PoolDetail = () => {
               <ReviewsSection 
                 rating={pool.rating} 
                 reviews={pool.reviews} 
-                reviewsData={reviewsData as ReviewData[]}
+                reviewsData={processedReviewsData}
               />
             </div>
             
