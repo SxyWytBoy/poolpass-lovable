@@ -83,7 +83,8 @@
   }
 
   body {
-    @apply bg-background text-foreground font-inter scroll-smooth pt-navbar;
+    @apply bg-background text-foreground font-inter scroll-smooth;
+    padding-top: 4rem; /* Fallback for fixed header height */
   }
 }
 
@@ -100,12 +101,12 @@
     @apply py-10 md:py-16 lg:py-20;
   }
 
+  .with-header-offset {
+    @apply pt-16; /* Adjust this value to match the height of your fixed top bar */
+  }
+  
   .pool-card-shadow {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  }
-
-  .pt-navbar {
-    padding-top: 4rem; /* Adjust based on actual height of your top bar */
   }
 }
 
@@ -155,6 +156,6 @@
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
