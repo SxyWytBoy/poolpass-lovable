@@ -2,7 +2,32 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import { poolDataFallback } from './use-pool-data';
+
+// Create mock data for fallback reviews
+const reviewsDataFallback = [
+  {
+    id: "1",
+    user: "Sarah Johnson",
+    avatar: "https://randomuser.me/api/portraits/women/32.jpg",
+    date: "October 2023",
+    rating: 5,
+    comment: "Absolutely stunning pool! The facilities were immaculate and the host was incredibly accommodating.",
+    user_id: "user1",
+    pool_id: "1",
+    created_at: "2023-10-15"
+  },
+  {
+    id: "2",
+    user: "Michael Thompson",
+    avatar: "https://randomuser.me/api/portraits/men/41.jpg",
+    date: "September 2023",
+    rating: 4,
+    comment: "Great experience overall. The water temperature was perfect and the atmosphere was very relaxing.",
+    user_id: "user2",
+    pool_id: "1",
+    created_at: "2023-09-28"
+  }
+];
 
 // Type for review data to fix TypeScript errors
 export interface ReviewData {
@@ -46,10 +71,10 @@ export const useReviews = (poolId: string | undefined) => {
         
         if (error) throw error;
         
-        return reviewData || poolDataFallback.reviewsData;
+        return reviewData || reviewsDataFallback;
       } catch (error) {
         console.error("Error fetching reviews:", error);
-        return poolDataFallback.reviewsData;
+        return reviewsDataFallback;
       }
     },
     enabled: !!poolId,
@@ -77,3 +102,5 @@ export const useReviews = (poolId: string | undefined) => {
 
   return { reviewsData: processedReviewsData };
 };
+
+export { reviewsDataFallback };

@@ -3,6 +3,15 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Pool } from '@/types';
 
+// Type for host profile data
+interface HostProfile {
+  id?: string;
+  full_name?: string;
+  avatar_url?: string;
+  created_at?: string;
+  [key: string]: any; // For other potential properties
+}
+
 // Mock data for a fallback when API is not available
 const poolDataFallback = {
   id: "1",
@@ -92,6 +101,8 @@ export const usePoolData = (id: string | undefined) => {
         
         if (data) {
           // Process the data to match our expected format
+          const hostData = data.host as HostProfile || {};
+          
           const processedData = {
             ...data,
             amenities: Array.isArray(data.amenities) ? data.amenities : [],
@@ -103,18 +114,14 @@ export const usePoolData = (id: string | undefined) => {
               maxGuests: 1
             },
             // If host information exists, format it, otherwise use fallback
-            host: data.host ? {
-              id: data.host.id,
-              name: data.host.full_name || "Host",
-              image: data.host.avatar_url || "https://via.placeholder.com/40",
+            host: {
+              id: hostData?.id,
+              name: hostData?.full_name || "Host",
+              image: hostData?.avatar_url || "https://via.placeholder.com/40",
               responseTime: "Within a day",
-              joinedDate: new Date(data.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
-            } : {
-              id: undefined,
-              name: "Host",
-              image: "https://via.placeholder.com/40",
-              responseTime: "Within a day",
-              joinedDate: "Unknown"
+              joinedDate: hostData?.created_at 
+                ? new Date(hostData.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
+                : "Unknown"
             },
             available_time_slots: [
               { id: "1", time: "09:00 - 10:00" },
