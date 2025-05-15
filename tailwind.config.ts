@@ -64,11 +64,11 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				pool: {
-					primary: '#0891b2', // cyan-600
-					secondary: '#0e7490', // cyan-700
-					accent: '#06b6d4', // cyan-500
-					light: '#ecfeff', // cyan-50
-					dark: '#155e75', // cyan-800
+					primary: '#0A4B6D', // Deeper blue
+					secondary: '#083754', // Even deeper blue
+					accent: '#0E6DA5', // Bright deep blue
+					light: '#E6F4F9', // Light blue background
+					dark: '#052A3D', // Very deep blue
 				}
 			},
 			borderRadius: {

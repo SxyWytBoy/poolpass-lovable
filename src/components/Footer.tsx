@@ -51,16 +51,14 @@ const Footer = () => {
         <div className="mt-12 pt-8 border-t border-gray-200">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center mb-4 md:mb-0">
-              <div className="relative">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-pool-accent to-pool-primary rounded-full blur opacity-50"></div>
-                <div className="relative bg-white rounded-full p-1">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12Z" stroke="#0891b2" strokeWidth="2" />
-                    <path d="M7 12C7 14.7614 9.23858 17 12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7" stroke="#0891b2" strokeWidth="2" strokeLinecap="round" />
-                  </svg>
-                </div>
-              </div>
-              <span className="ml-2 text-lg font-bold bg-gradient-to-r from-pool-primary to-pool-accent bg-clip-text text-transparent">PoolPass</span>
+              <img 
+                src="/lovable-uploads/02c77851-dc38-4985-9b9d-c0ed1bd14423.png" 
+                alt="PoolPass Logo" 
+                className="h-12 w-auto"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/200x80?text=PoolPass';
+                }}
+              />
             </div>
             
             <div className="flex space-x-6">

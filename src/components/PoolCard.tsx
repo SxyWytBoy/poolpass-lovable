@@ -75,9 +75,9 @@ const PoolCard = ({
             <Badge 
               className={cn(
                 "text-xs font-medium px-2 py-0.5",
-                indoorOutdoor === 'indoor' ? "bg-blue-100 text-blue-800" : 
-                indoorOutdoor === 'outdoor' ? "bg-green-100 text-green-800" :
-                "bg-purple-100 text-purple-800"
+                indoorOutdoor === 'indoor' ? "bg-pool-light text-pool-dark" : 
+                indoorOutdoor === 'outdoor' ? "bg-pool-light text-pool-dark" :
+                "bg-pool-light text-pool-dark"
               )}
             >
               {indoorOutdoor === 'both' ? 'Indoor & Outdoor' : indoorOutdoor}
@@ -102,12 +102,12 @@ const PoolCard = ({
           {amenities && amenities.length > 0 && (
             <div className="mb-3 flex flex-wrap gap-1">
               {amenities.slice(0, 3).map((amenity, i) => (
-                <Badge key={i} variant="outline" className="text-xs bg-gray-50">
+                <Badge key={i} variant="outline" className="text-xs bg-pool-light text-pool-dark">
                   {amenity}
                 </Badge>
               ))}
               {amenities.length > 3 && (
-                <Badge variant="outline" className="text-xs bg-gray-50">
+                <Badge variant="outline" className="text-xs bg-pool-light text-pool-dark">
                   +{amenities.length - 3} more
                 </Badge>
               )}
