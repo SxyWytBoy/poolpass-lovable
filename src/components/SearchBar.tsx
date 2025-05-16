@@ -51,25 +51,25 @@ const SearchBar = ({ className }: { className?: string }) => {
       )}
     >
       {/* Location Input */}
-      <div className="relative flex-grow">
+      <div className="relative flex-1">
         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
         <Input
           type="text"
           placeholder="Location"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          className="pl-10 h-12 bg-gray-50 border-gray-200"
+          className="pl-10 h-12 bg-gray-50 border-gray-200 w-full"
         />
       </div>
       
       {/* Date Picker */}
-      <div className="relative">
+      <div className="relative flex-1">
         <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               className={cn(
-                "h-12 w-full md:w-[240px] pl-10 pr-3 text-left font-normal bg-gray-50 border-gray-200 hover:bg-gray-50",
+                "h-12 w-full pl-10 pr-3 text-left font-normal bg-gray-50 border-gray-200 hover:bg-gray-50",
                 !date && "text-muted-foreground"
               )}
             >
@@ -93,12 +93,12 @@ const SearchBar = ({ className }: { className?: string }) => {
       </div>
       
       {/* Amenities Filter */}
-      <div className="relative">
+      <div className="relative flex-1">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
-              className="h-12 md:w-[180px] pl-10 pr-3 bg-gray-50 border-gray-200 hover:bg-gray-50 flex justify-between items-center"
+              className="h-12 w-full pl-10 pr-3 bg-gray-50 border-gray-200 hover:bg-gray-50 flex justify-between items-center"
             >
               <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <span className="mr-1">Amenities</span>
@@ -133,7 +133,7 @@ const SearchBar = ({ className }: { className?: string }) => {
       </div>
       
       {/* Search Button */}
-      <Button type="submit" className="h-12 px-6 bg-pool-primary hover:bg-pool-secondary">
+      <Button type="submit" className="h-12 px-6 bg-pool-primary hover:bg-pool-secondary flex-1">
         <Search className="h-5 w-5 mr-2" />
         <span>Search</span>
       </Button>
