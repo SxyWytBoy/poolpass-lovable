@@ -13,7 +13,7 @@ const HeroSection = () => {
           alt="Swimming Pool" 
           className="w-full h-full object-cover"
           onError={(e) => {
-            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/1920x1080?text=Featured+Pool';
+            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1562778612-e1e0cda9915c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80';
           }}
         />
       </div>
