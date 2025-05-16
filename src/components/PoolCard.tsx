@@ -26,6 +26,7 @@ interface PoolCardProps {
   image: string;
   indoorOutdoor: 'indoor' | 'outdoor' | 'both';
   amenities?: string[];
+  fallbackImage?: string; // Added fallbackImage property
   className?: string;
 }
 
@@ -39,6 +40,7 @@ const PoolCard = ({
   image,
   indoorOutdoor,
   amenities = [],
+  fallbackImage, // Added fallbackImage parameter
   className
 }: PoolCardProps) => {
   
@@ -66,8 +68,8 @@ const PoolCard = ({
               alt={name}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               onError={(e) => {
-                // Fallback for image loading errors
-                (e.target as HTMLImageElement).src = `https://via.placeholder.com/800x600?text=${encodeURIComponent(name)}`;
+                // Use the fallbackImage if provided, otherwise use a placeholder
+                (e.target as HTMLImageElement).src = fallbackImage || `https://via.placeholder.com/800x600?text=${encodeURIComponent(name)}`;
               }}
             />
           </AspectRatio>
