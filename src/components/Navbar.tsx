@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,7 @@ const Navbar = () => {
             <img 
               src="/lovable-uploads/000fe6ae-768e-4edb-84b8-d2ff9a4fb878.png" 
               alt="PoolPass Logo" 
-              className="h-14 md:h-16" 
+              className="h-16 md:h-20 w-auto" 
             />
           </Link>
           
