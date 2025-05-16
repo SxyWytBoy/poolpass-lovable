@@ -52,9 +52,9 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center mb-4 md:mb-0">
               <img 
-                src="/lovable-uploads/02c77851-dc38-4985-9b9d-c0ed1bd14423.png" 
+                src="/lovable-uploads/b0a133cd-7024-42bb-b333-dc78e02d1272.png" 
                 alt="PoolPass Logo" 
-                className="h-28 md:h-32 w-auto"
+                className="h-36 md:h-40 w-auto"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'https://via.placeholder.com/200x80?text=PoolPass';
                 }}

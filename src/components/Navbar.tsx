@@ -22,7 +22,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <img 
-              src="/lovable-uploads/000fe6ae-768e-4edb-84b8-d2ff9a4fb878.png" 
+              src="/lovable-uploads/b0a133cd-7024-42bb-b333-dc78e02d1272.png" 
               alt="PoolPass Logo" 
               className="h-16 md:h-20 w-auto" 
             />
