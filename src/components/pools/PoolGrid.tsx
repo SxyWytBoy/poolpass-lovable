@@ -20,6 +20,13 @@ interface PoolGridProps {
   resetFilters: () => void;
 }
 
+// Fallback images by pool type
+const fallbackImages = {
+  indoor: "https://images.unsplash.com/photo-1572331165267-854da2b10ccc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
+  outdoor: "https://images.unsplash.com/photo-1477120292453-dbba2d987c24?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
+  both: "https://images.unsplash.com/photo-1615394717477-43fe6ee0def3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
+};
+
 const PoolGrid = ({ pools, resetFilters }: PoolGridProps) => {
   if (pools.length === 0) {
     return (
@@ -50,6 +57,7 @@ const PoolGrid = ({ pools, resetFilters }: PoolGridProps) => {
           image={pool.image}
           indoorOutdoor={pool.indoorOutdoor}
           amenities={pool.amenities}
+          fallbackImage={fallbackImages[pool.indoorOutdoor]}
         />
       ))}
     </div>

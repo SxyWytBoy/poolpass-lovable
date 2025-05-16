@@ -54,7 +54,7 @@ const Footer = () => {
               <img 
                 src="/lovable-uploads/02c77851-dc38-4985-9b9d-c0ed1bd14423.png" 
                 alt="PoolPass Logo" 
-                className="h-12 w-auto"
+                className="h-20 w-auto"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'https://via.placeholder.com/200x80?text=PoolPass';
                 }}
