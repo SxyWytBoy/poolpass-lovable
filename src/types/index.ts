@@ -18,6 +18,10 @@ export type Pool = {
   reviews: number;
   indoor_outdoor: 'indoor' | 'outdoor' | 'both';
   images: string[];
+  tabImages?: {
+    rooftop?: string[];
+    countryhouse?: string[];
+  };
   amenities: { name: string; included: boolean }[];
   extras: { id: string; name: string; price: number }[];
   pool_details: {
