@@ -14,6 +14,7 @@ import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import HostDashboard from "./pages/HostDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import CrmSettings from "./pages/CrmSettings";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,14 @@ const App = () => (
               element={
                 <ProtectedRoute userType="host">
                   <HostDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/crm-settings" 
+              element={
+                <ProtectedRoute userType="host">
+                  <CrmSettings />
                 </ProtectedRoute>
               } 
             />
