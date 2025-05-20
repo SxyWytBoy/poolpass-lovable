@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
@@ -51,8 +50,10 @@ const Index = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      {/* Hero Section */}
-      <HeroSection />
+      {/* Hero Section with additional top margin class */}
+      <div className="mt-10 md:mt-12">
+        <HeroSection />
+      </div>
       
       {/* Featured Pools Section */}
       <section className="bg-white section-padding">

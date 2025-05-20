@@ -84,7 +84,7 @@
 
   body {
     @apply bg-background text-foreground font-inter scroll-smooth;
-    padding-top: 4rem; /* Fallback for fixed header height */
+    padding-top: 5rem; /* Increased padding to prevent content from being hidden behind navbar */
   }
 }
 
