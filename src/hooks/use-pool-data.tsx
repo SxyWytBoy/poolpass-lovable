@@ -58,13 +58,7 @@ const poolDataFallback = {
     joinedDate: "March 2022"
   },
   available_time_slots: [
-    { id: "1", time: "09:00 - 10:00" },
-    { id: "2", time: "10:30 - 11:30" },
-    { id: "3", time: "12:00 - 13:00" },
-    { id: "4", time: "14:00 - 15:00" },
-    { id: "5", time: "15:30 - 16:30" },
-    { id: "6", time: "17:00 - 18:00" },
-    { id: "7", time: "19:00 - 20:00" },
+    { id: "full-day", time: "Full Day Access" },
   ],
   host_id: "host-1",
   created_at: "2023-01-15",
@@ -124,11 +118,7 @@ export const usePoolData = (id: string | undefined) => {
                 : "Unknown"
             },
             available_time_slots: [
-              { id: "1", time: "09:00 - 10:00" },
-              { id: "2", time: "10:30 - 11:30" },
-              { id: "3", time: "12:00 - 13:00" },
-              { id: "4", time: "14:00 - 15:00" },
-              { id: "5", time: "15:30 - 16:30" },
+              { id: "full-day", time: "Full Day Access" },
             ]
           };
           return processedData;

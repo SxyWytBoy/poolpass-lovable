@@ -41,3 +41,5 @@ export interface CrmConnectionStatus {
   lastSynced?: string;
   webhookConfigured?: boolean;
 }
+
+// Modify the rental period from hourly to daily in relevant interfaces if needed

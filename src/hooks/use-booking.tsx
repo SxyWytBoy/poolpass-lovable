@@ -85,7 +85,7 @@ export const useBooking = (poolId: string | undefined, userId: string | undefine
   const getTimeSlotText = (timeSlotId: string) => {
     // This function would normally look up the time slot from available slots
     // For simplicity, returning a placeholder
-    return "10:00 - 11:00"; // Placeholder
+    return "Full day access"; // Updated from time slot to full day access
   };
 
   const calculateExtrasPrice = (

@@ -13,7 +13,7 @@ const BookingPrice = ({ price, rating, reviews }: BookingPriceProps) => {
     <div className="flex justify-between items-center mb-6">
       <div className="text-2xl font-semibold text-pool-primary">
         £{price}
-        <span className="text-sm font-normal text-gray-600">/hour</span>
+        <span className="text-sm font-normal text-gray-600">/day</span>
       </div>
       {rating && (
         <div className="flex items-center">

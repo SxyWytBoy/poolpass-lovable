@@ -120,7 +120,7 @@ const PoolCard = ({
         <CardFooter className="p-4 pt-0 flex justify-between items-center">
           <div className="text-pool-primary">
             <span className="font-bold text-lg">£{price}</span>
-            <span className="text-sm text-gray-500">/hour</span>
+            <span className="text-sm text-gray-500">/day</span>
           </div>
           <Button 
             variant="outline" 
