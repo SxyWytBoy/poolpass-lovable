@@ -17,6 +17,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import CrmSettings from "./pages/CrmSettings";
 import HowItWorksPage from "./pages/HowItWorksPage";
 import HostPage from "./pages/HostPage";
+import SafetyPage from "./pages/SafetyPage";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/pools/:id" element={<PoolDetail />} />
             <Route path="/how-it-works" element={<HowItWorksPage />} />
             <Route path="/host" element={<HostPage />} />
+            <Route path="/safety" element={<SafetyPage />} />
             <Route path="/sign-in" element={<SignIn />} />
             <Route path="/sign-up" element={<SignUp />} />
             <Route 

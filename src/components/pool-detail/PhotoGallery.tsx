@@ -22,12 +22,13 @@ const PhotoGallery = ({ images, name }: PhotoGalleryProps) => {
   // Make sure we have at least one image
   const safeImages = images && images.length > 0 ? images : ['https://via.placeholder.com/800x500?text=No+Image+Available'];
   
-  // Define the tab specific images
+  // Define the tab specific images with more variety and better quality
   const rooftopPoolImages = [
     'https://images.unsplash.com/photo-1477120292453-dbba2d987c24?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
+    'https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80', 
     'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
-    'https://images.unsplash.com/photo-1433086966358-54859d0ed716?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
-    'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
+    'https://images.unsplash.com/photo-1458668383970-8ddd3927deed?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
+    'https://images.unsplash.com/photo-1496307653780-42ee777d4833?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80'
   ];
   
   const countryHouseImages = [
@@ -35,6 +36,7 @@ const PhotoGallery = ({ images, name }: PhotoGalleryProps) => {
     'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
     'https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
     'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
+    'https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80'
   ];
   
   // Default to the main pool's images (from props)
@@ -68,6 +70,17 @@ const PhotoGallery = ({ images, name }: PhotoGalleryProps) => {
             <TabsTrigger value="rooftop">Rooftop Infinity Pool</TabsTrigger>
             <TabsTrigger value="countryhouse">Country House Pool & Gardens</TabsTrigger>
           </TabsList>
+          
+          {/* Adding TabsContent for visual feedback */}
+          <TabsContent value="main" className="mt-0">
+            <p className="text-sm text-gray-500 mb-2">Viewing main pool images</p>
+          </TabsContent>
+          <TabsContent value="rooftop" className="mt-0">
+            <p className="text-sm text-gray-500 mb-2">Viewing rooftop infinity pool images</p>
+          </TabsContent>
+          <TabsContent value="countryhouse" className="mt-0">
+            <p className="text-sm text-gray-500 mb-2">Viewing country house pool & gardens images</p>
+          </TabsContent>
         </Tabs>
       </div>
       
@@ -102,7 +115,7 @@ const PhotoGallery = ({ images, name }: PhotoGalleryProps) => {
             </>
           ) : (
             // Show thumbnails for available images
-            activeTabImages.slice(0, 5).map((img: string, index: number) => (
+            activeTabImages.slice(0, 4).map((img: string, index: number) => (
               <div 
                 key={index}
                 onClick={() => setMainImageIndex(index)}
