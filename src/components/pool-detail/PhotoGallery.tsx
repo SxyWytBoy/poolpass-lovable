@@ -14,16 +14,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 interface PhotoGalleryProps {
   images: string[];
   name: string;
+  tabImages?: {
+    rooftop?: string[];
+    countryhouse?: string[];
+  };
 }
 
-const PhotoGallery = ({ images, name }: PhotoGalleryProps) => {
+const PhotoGallery = ({ images, name, tabImages }: PhotoGalleryProps) => {
   const [mainImageIndex, setMainImageIndex] = useState(0);
   
   // Make sure we have at least one image
   const safeImages = images && images.length > 0 ? images : ['https://via.placeholder.com/800x500?text=No+Image+Available'];
   
   // Define the tab specific images with more variety and better quality
-  const rooftopPoolImages = [
+  const rooftopPoolImages = tabImages?.rooftop || [
     'https://images.unsplash.com/photo-1477120292453-dbba2d987c24?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
     'https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80', 
     'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
@@ -31,7 +35,7 @@ const PhotoGallery = ({ images, name }: PhotoGalleryProps) => {
     'https://images.unsplash.com/photo-1496307653780-42ee777d4833?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80'
   ];
   
-  const countryHouseImages = [
+  const countryHouseImages = tabImages?.countryhouse || [
     'https://images.unsplash.com/photo-1551123847-4041291bec0c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
     'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
     'https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
