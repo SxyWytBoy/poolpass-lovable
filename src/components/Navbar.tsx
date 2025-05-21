@@ -14,6 +14,9 @@ const Navbar = () => {
     await signOut();
     navigate('/');
   };
+
+  // Determine user type from metadata
+  const userType = user?.user_metadata?.user_type || 'guest';
   
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-95 backdrop-blur-sm shadow-sm">
@@ -45,7 +48,7 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <>
-                <Link to={user.user_metadata?.user_type === 'host' ? '/host-dashboard' : '/dashboard'}>
+                <Link to={userType === 'host' ? '/host-dashboard' : '/dashboard'}>
                   <Button variant="ghost" className="text-gray-700 hover:text-pool-primary">
                     Dashboard
                   </Button>
@@ -107,7 +110,7 @@ const Navbar = () => {
             <div className="pt-4 flex flex-col space-y-2">
               {user ? (
                 <>
-                  <Link to={user.user_metadata?.user_type === 'host' ? '/host-dashboard' : '/dashboard'}>
+                  <Link to={userType === 'host' ? '/host-dashboard' : '/dashboard'}>
                     <Button variant="outline" className="w-full justify-center">
                       Dashboard
                     </Button>

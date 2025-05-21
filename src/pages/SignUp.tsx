@@ -11,6 +11,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { useToast } from '@/components/ui/use-toast';
 
 const formSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -29,6 +30,8 @@ type FormData = z.infer<typeof formSchema>;
 const SignUp = () => {
   const { signUp, user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -40,8 +43,6 @@ const SignUp = () => {
     },
   });
   
-  const { handleSubmit, formState: { isSubmitting } } = form;
-  
   React.useEffect(() => {
     if (user) {
       navigate('/dashboard');
@@ -49,19 +50,38 @@ const SignUp = () => {
   }, [user, navigate]);
   
   const onSubmit = async (data: FormData) => {
-    await signUp(data.email, data.password, data.userType);
+    setIsSubmitting(true);
+    try {
+      const result = await signUp(data.email, data.password, data.userType);
+      
+      if (!result.error) {
+        // Delay navigation to allow toast to show
+        setTimeout(() => {
+          navigate('/sign-in');
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      toast({
+        title: "Signup failed",
+        description: "There was an error creating your account. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-grow container mx-auto px-4 py-8 flex justify-center items-center">
+      <main className="flex-grow container mx-auto px-4 py-8 flex justify-center items-center mt-16">
         <div className="w-full max-w-md bg-white rounded-xl shadow-md p-6 sm:p-8">
           <h1 className="text-2xl font-bold text-center mb-6">Create a PoolPass Account</h1>
           
           <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
                 name="email"

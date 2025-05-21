@@ -8,7 +8,7 @@ type AuthContextType = {
   session: Session | null;
   user: User | null;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, userType: 'guest' | 'host') => Promise<void>;
+  signUp: (email: string, password: string, userType: 'guest' | 'host') => Promise<{ error: boolean, message?: string }>;
   signOut: () => Promise<void>;
   loading: boolean;
 };
@@ -53,9 +53,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       
+      // First, sign up the user with email/password
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            user_type: userType
+          }
+        }
       });
 
       if (error) {
@@ -64,7 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: error.message,
           variant: "destructive",
         });
-        return;
+        return { error: true, message: error.message };
       }
 
       if (data.user) {
@@ -74,14 +80,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .insert({
             id: data.user.id,
             user_type: userType,
+            email: email,
+            created_at: new Date().toISOString(),
           });
 
         if (profileError) {
+          console.error("Failed to create profile:", profileError);
           toast({
             title: "Profile creation failed",
             description: profileError.message,
             variant: "destructive",
           });
+          return { error: true, message: profileError.message };
         }
       }
 
@@ -90,6 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: "Please check your email to verify your account.",
       });
       
+      return { error: false };
     } catch (error) {
       if (error instanceof Error) {
         toast({
@@ -97,7 +108,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: error.message,
           variant: "destructive",
         });
+        return { error: true, message: error.message };
       }
+      return { error: true, message: "Unknown error occurred" };
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -21,6 +21,7 @@ type FormData = z.infer<typeof formSchema>;
 const SignIn = () => {
   const { signIn, user } = useAuth();
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -30,8 +31,6 @@ const SignIn = () => {
     },
   });
   
-  const { handleSubmit, formState: { isSubmitting } } = form;
-  
   React.useEffect(() => {
     if (user) {
       navigate('/dashboard');
@@ -39,19 +38,24 @@ const SignIn = () => {
   }, [user, navigate]);
   
   const onSubmit = async (data: FormData) => {
-    await signIn(data.email, data.password);
+    setIsSubmitting(true);
+    try {
+      await signIn(data.email, data.password);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-grow container mx-auto px-4 py-8 flex justify-center items-center">
+      <main className="flex-grow container mx-auto px-4 py-8 flex justify-center items-center mt-16">
         <div className="w-full max-w-md bg-white rounded-xl shadow-md p-6 sm:p-8">
           <h1 className="text-2xl font-bold text-center mb-6">Sign In to PoolPass</h1>
           
           <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
                 name="email"
