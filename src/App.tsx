@@ -15,6 +15,8 @@ import Dashboard from "./pages/Dashboard";
 import HostDashboard from "./pages/HostDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CrmSettings from "./pages/CrmSettings";
+import HowItWorksPage from "./pages/HowItWorksPage";
+import HostPage from "./pages/HostPage";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +31,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/pools" element={<Pools />} />
             <Route path="/pools/:id" element={<PoolDetail />} />
+            <Route path="/how-it-works" element={<HowItWorksPage />} />
+            <Route path="/host" element={<HostPage />} />
             <Route path="/sign-in" element={<SignIn />} />
             <Route path="/sign-up" element={<SignUp />} />
             <Route 
