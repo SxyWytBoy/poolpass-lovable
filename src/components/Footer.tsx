@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -20,6 +21,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Guests</h3>
             <ul className="space-y-2">
               <li><Link to="/pools" className="text-gray-600 hover:text-pool-primary">Find Pools</Link></li>
+              <li><Link to="/waitlist" className="text-gray-600 hover:text-pool-primary">Join Waitlist</Link></li>
               <li><Link to="/gift-cards" className="text-gray-600 hover:text-pool-primary">Gift Cards</Link></li>
               <li><Link to="/help" className="text-gray-600 hover:text-pool-primary">Help Centre</Link></li>
               <li><Link to="/safety" className="text-gray-600 hover:text-pool-primary">Safety</Link></li>
