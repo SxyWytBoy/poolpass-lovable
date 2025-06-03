@@ -18,6 +18,9 @@ import CrmSettings from "./pages/CrmSettings";
 import HowItWorksPage from "./pages/HowItWorksPage";
 import HostPage from "./pages/HostPage";
 import SafetyPage from "./pages/SafetyPage";
+import WaitlistLanding from "./pages/WaitlistLanding";
+import GuestWaitlist from "./pages/GuestWaitlist";
+import HostWaitlist from "./pages/HostWaitlist";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +38,9 @@ const App = () => (
             <Route path="/how-it-works" element={<HowItWorksPage />} />
             <Route path="/host" element={<HostPage />} />
             <Route path="/safety" element={<SafetyPage />} />
+            <Route path="/waitlist" element={<WaitlistLanding />} />
+            <Route path="/guest-waitlist" element={<GuestWaitlist />} />
+            <Route path="/host-waitlist" element={<HostWaitlist />} />
             <Route path="/sign-in" element={<SignIn />} />
             <Route path="/sign-up" element={<SignUp />} />
             <Route 
