@@ -10,6 +10,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
+import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -29,6 +31,7 @@ type FormData = z.infer<typeof formSchema>;
 const HostWaitlist = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
   
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -46,11 +49,47 @@ const HostWaitlist = () => {
   
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log('Host waitlist form data:', data);
-    setIsSubmitted(true);
-    setIsSubmitting(false);
+    try {
+      const { error } = await supabase
+        .from('host_waitlist')
+        .insert({
+          business_name: data.businessName,
+          contact_name: data.contactName,
+          email: data.email,
+          location: data.location,
+          pool_type: data.poolType,
+          current_use: data.currentUse,
+          interest_level: data.interestLevel,
+          additional_info: data.additionalInfo || null,
+        });
+
+      if (error) {
+        if (error.code === '23505') {
+          toast({
+            title: "Email already registered",
+            description: "This email is already on our host waitlist. Thanks for your interest!",
+            variant: "destructive",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        setIsSubmitted(true);
+        toast({
+          title: "Successfully registered interest!",
+          description: "We'll be in touch about how PoolPass can work with your venue.",
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast({
+        title: "Something went wrong",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const poolTypeOptions = [

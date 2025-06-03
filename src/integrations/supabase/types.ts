@@ -9,7 +9,102 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      guest_waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          likely_to_book: string | null
+          location: string
+          name: string
+          swimming_frequency: string
+          use_for: string[]
+          use_for_other: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          likely_to_book?: string | null
+          location: string
+          name: string
+          swimming_frequency: string
+          use_for: string[]
+          use_for_other?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          likely_to_book?: string | null
+          location?: string
+          name?: string
+          swimming_frequency?: string
+          use_for?: string[]
+          use_for_other?: string | null
+        }
+        Relationships: []
+      }
+      host_waitlist: {
+        Row: {
+          additional_info: string | null
+          business_name: string
+          contact_name: string
+          created_at: string
+          current_use: string[]
+          email: string
+          id: string
+          interest_level: string[]
+          location: string
+          pool_type: string[]
+        }
+        Insert: {
+          additional_info?: string | null
+          business_name: string
+          contact_name: string
+          created_at?: string
+          current_use: string[]
+          email: string
+          id?: string
+          interest_level: string[]
+          location: string
+          pool_type: string[]
+        }
+        Update: {
+          additional_info?: string | null
+          business_name?: string
+          contact_name?: string
+          created_at?: string
+          current_use?: string[]
+          email?: string
+          id?: string
+          interest_level?: string[]
+          location?: string
+          pool_type?: string[]
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          user_type: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id: string
+          user_type?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          user_type?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
