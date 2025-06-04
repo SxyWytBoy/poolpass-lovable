@@ -7,6 +7,7 @@ import HowItWorks from '@/components/HowItWorks';
 import Testimonials from '@/components/Testimonials';
 import Footer from '@/components/Footer';
 import PoolCard from '@/components/PoolCard';
+import ImageWithFallback from '@/components/ImageWithFallback';
 
 const featuredPools = [
   {
@@ -16,7 +17,7 @@ const featuredPools = [
     price: 45,
     rating: 4.9,
     reviews: 128,
-    image: "https://images.unsplash.com/photo-1572331165267-854da2b10ccc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
+    image: "/lovable-uploads/indoor-pool.jpg",
     indoorOutdoor: "indoor" as const,
     amenities: ["Heated", "Loungers", "Towels Provided", "Jacuzzi"]
   },
@@ -27,7 +28,7 @@ const featuredPools = [
     price: 60,
     rating: 4.7,
     reviews: 85,
-    image: "/lovable-uploads/outdoor-swimming-pool.jpg", // Updated to local image
+    image: "/lovable-uploads/outdoor-swimming-pool.jpg",
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "City View", "Bar Service", "Loungers"]
   },
@@ -38,18 +39,19 @@ const featuredPools = [
     price: 38,
     rating: 4.8,
     reviews: 63,
-    image: "/lovable-uploads/indoor-outdoor-swimming-pool.jpg", // Updated to local image
+    image: "/lovable-uploads/indoor-outdoor-swimming-pool.jpg",
     indoorOutdoor: "both" as const,
     amenities: ["Garden Access", "Changing Rooms", "Food Available"]
   }
 ];
+
+const fallbackImg = "/placeholder-pool.jpg"; // Put a default fallback image in /public
 
 const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      {/* Hero Section with additional top margin class */}
       <div className="mt-10 md:mt-12">
         <HeroSection />
       </div>
@@ -74,7 +76,14 @@ const Index = () => {
                 price={pool.price}
                 rating={pool.rating}
                 reviews={pool.reviews}
-                image={pool.image}
+                imageElement={
+                  <ImageWithFallback
+                    src={pool.image}
+                    fallbackSrc={fallbackImg}
+                    alt={pool.name}
+                    className="w-full h-56 object-cover rounded-xl"
+                  />
+                }
                 indoorOutdoor={pool.indoorOutdoor}
                 amenities={pool.amenities}
               />
@@ -91,15 +100,12 @@ const Index = () => {
         </div>
       </section>
 
-      {/* How It Works Section */}
       <HowItWorks />
 
-      {/* Host CTA Section */}
       <section className="bg-white section-padding">
         <div className="container mx-auto px-4">
           <div className="bg-gradient-to-r from-pool-dark to-pool-primary rounded-2xl overflow-hidden">
             <div className="grid grid-cols-1 md:grid-cols-2">
-              {/* Text Content */}
               <div className="p-8 md:p-12 flex flex-col justify-center">
                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4">
                   Own a Pool? Become a Host
@@ -115,12 +121,11 @@ const Index = () => {
                   </Link>
                 </div>
               </div>
-
-              {/* Image Side */}
               <div className="relative h-64 md:h-auto">
-                <img 
-                  src="https://images.unsplash.com/photo-1615397349754-cfa2066a298e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80" 
-                  alt="Swimming Pool" 
+                <ImageWithFallback
+                  src="https://images.unsplash.com/photo-1615397349754-cfa2066a298e?auto=format&fit=crop&w=1050&q=80"
+                  fallbackSrc={fallbackImg}
+                  alt="Swimming Pool"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -129,10 +134,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
       <Testimonials />
-
-      {/* Footer */}
       <Footer />
     </div>
   );
