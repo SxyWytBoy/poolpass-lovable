@@ -16,7 +16,7 @@ const featuredPools = [
     price: 45,
     rating: 4.9,
     reviews: 128,
-    image: "/lovable-uploads/indoor-pool.jpg",  // original image path here
+    image: "/lovable-uploads/indoor-swimming-pool.jpg",  // updated image path here
     indoorOutdoor: "indoor" as const,
     amenities: ["Heated", "Loungers", "Towels Provided", "Jacuzzi"]
   },
