@@ -12,7 +12,7 @@ const WaitlistLanding = () => {
       <main className="flex-grow">
         {/* Hero Section with background image */}
         <section
-          className="section-padding relative min-h-[600px] md:min-h-[700px]"
+          className="section-padding relative min-h-[400px] md:min-h-[500px]"
           style={{
             backgroundImage: `url('/lovable-uploads/waitlist-water.jpg')`,
             backgroundSize: 'cover',
@@ -24,7 +24,7 @@ const WaitlistLanding = () => {
           {/* Dark overlay for text readability */}
           <div className="absolute inset-0 bg-black opacity-40"></div>
 
-          <div className="container mx-auto px-4 relative z-10 flex flex-col justify-center min-h-[600px] md:min-h-[700px]">
+          <div className="container mx-auto px-4 relative z-10 flex flex-col justify-start pt-20 min-h-[400px] md:min-h-[500px]">
             <div className="max-w-4xl mx-auto text-center text-white">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
                 Find Your Next Pool Day — No Hotel Stay Needed
