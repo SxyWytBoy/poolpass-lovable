@@ -1,5 +1,5 @@
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { ApiResponse, CrmSyncRequest, CrmWebhookPayload, CrmConnectionStatus } from '@/types/api';
 import { Pool, Booking, User } from '@/types';
 
