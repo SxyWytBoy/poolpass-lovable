@@ -7,7 +7,6 @@ import HowItWorks from '@/components/HowItWorks';
 import Testimonials from '@/components/Testimonials';
 import Footer from '@/components/Footer';
 import PoolCard from '@/components/PoolCard';
-import ImageWithFallback from '@/components/ImageWithFallback';
 
 const featuredPools = [
   {
@@ -17,7 +16,7 @@ const featuredPools = [
     price: 45,
     rating: 4.9,
     reviews: 128,
-    image: "/lovable-uploads/indoor-swimming-pool.jpg",  // fixed filename here
+    image: "/lovable-uploads/indoor-pool.jpg",  // original image path here
     indoorOutdoor: "indoor" as const,
     amenities: ["Heated", "Loungers", "Towels Provided", "Jacuzzi"]
   },
@@ -44,8 +43,6 @@ const featuredPools = [
     amenities: ["Garden Access", "Changing Rooms", "Food Available"]
   }
 ];
-
-const fallbackImg = "/placeholder-pool.jpg"; // Put a default fallback image in /public
 
 const Index = () => {
   return (
@@ -76,14 +73,7 @@ const Index = () => {
                 price={pool.price}
                 rating={pool.rating}
                 reviews={pool.reviews}
-                imageElement={
-                  <ImageWithFallback
-                    src={pool.image}
-                    fallbackSrc={fallbackImg}
-                    alt={pool.name}
-                    className="w-full h-56 object-cover rounded-xl"
-                  />
-                }
+                image={pool.image}  // just pass the image string here
                 indoorOutdoor={pool.indoorOutdoor}
                 amenities={pool.amenities}
               />
@@ -122,9 +112,8 @@ const Index = () => {
                 </div>
               </div>
               <div className="relative h-64 md:h-auto">
-                <ImageWithFallback
+                <img
                   src="https://images.unsplash.com/photo-1615397349754-cfa2066a298e?auto=format&fit=crop&w=1050&q=80"
-                  fallbackSrc={fallbackImg}
                   alt="Swimming Pool"
                   className="w-full h-full object-cover"
                 />
