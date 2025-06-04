@@ -12,49 +12,39 @@ const WaitlistLanding = () => {
       <main className="flex-grow">
         {/* Hero Section with background image */}
         <section
-          className="section-padding relative min-h-[400px] md:min-h-[500px]"
+          className="relative min-h-[360px] md:min-h-[400px]"
           style={{
             backgroundImage: `url('/lovable-uploads/waitlist-water.jpg')`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center center',
+            backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             backgroundAttachment: 'fixed',
           }}
         >
-          {/* Dark overlay for text readability */}
           <div className="absolute inset-0 bg-black opacity-40"></div>
 
-          <div className="container mx-auto px-4 relative z-10 flex flex-col justify-start pt-20 min-h-[400px] md:min-h-[500px]">
-            <div className="max-w-4xl mx-auto text-center text-white">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+          <div className="container mx-auto px-4 relative z-10 flex flex-col justify-center min-h-[360px] md:min-h-[400px] pt-10">
+            <div className="max-w-3xl mx-auto text-center text-white space-y-4">
+              <h1 className="text-3xl md:text-4xl font-bold">
                 Find Your Next Pool Day — No Hotel Stay Needed
               </h1>
-              
-              <div className="text-xl md:text-2xl mb-8 space-y-4">
-                <p className="leading-relaxed">
-                  PoolPass gives you access to beautiful hotel, Airbnb and private pools across the UK — just for the day.
-                </p>
-                <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-lg">
-                  <span className="flex items-center gap-2">
-                    🌤️ Swim. Sunbathe. Chill. No overnight stay required.
-                  </span>
-                </div>
-                <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-lg">
-                  <span className="flex items-center gap-2">
-                    🏨 Hotels earn extra revenue. You escape without leaving town.
-                  </span>
-                </div>
-                <p className="text-xl font-medium text-white mt-6">
-                  👇 Join the waitlist and be the first to book.
-                </p>
+
+              <p className="text-lg md:text-xl">
+                PoolPass gives you access to hotel, Airbnb, and private pools across the UK — just for the day.
+              </p>
+
+              <div className="text-base md:text-lg">
+                <p>🌤️ Swim. Sunbathe. Chill. No overnight stay required.</p>
+                <p>🏨 Hotels earn extra revenue. You escape without leaving town.</p>
               </div>
-              
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-12">
+
+              <p className="font-medium">👇 Join the waitlist and be the first to book.</p>
+
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-4">
                 <Link to="/guest-waitlist">
                   <Button 
                     size="lg" 
-                    className="bg-pool-primary hover:bg-pool-secondary text-white px-8 py-4 text-lg font-medium w-full sm:w-auto"
+                    className="bg-pool-primary hover:bg-pool-secondary text-white px-6 py-3 text-base font-medium w-full sm:w-auto"
                   >
                     I'd be interested in booking a PoolPass
                   </Button>
@@ -64,7 +54,7 @@ const WaitlistLanding = () => {
                   <Button 
                     size="lg" 
                     variant="outline" 
-                    className="border-pool-primary text-pool-primary hover:bg-pool-primary hover:text-white px-8 py-4 text-lg font-medium w-full sm:w-auto"
+                    className="border-pool-primary text-pool-primary hover:bg-pool-primary hover:text-white px-6 py-3 text-base font-medium w-full sm:w-auto"
                   >
                     I'd be interested in hosting my pool space
                   </Button>
@@ -75,31 +65,31 @@ const WaitlistLanding = () => {
         </section>
 
         {/* Features Preview */}
-        <section className="bg-white section-padding">
+        <section className="bg-white py-12">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
               <div className="text-center">
-                <div className="w-16 h-16 bg-pool-light rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">🏊‍♀️</span>
+                <div className="w-14 h-14 bg-pool-light rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-xl">🏊‍♀️</span>
                 </div>
-                <h3 className="text-xl font-semibold text-pool-dark mb-2">Book by the Day</h3>
-                <p className="text-gray-600">Access beautiful pools without the overnight stay</p>
+                <h3 className="text-lg font-semibold text-pool-dark mb-1">Book by the Day</h3>
+                <p className="text-gray-600 text-sm">Access beautiful pools without the overnight stay</p>
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-pool-light rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">🌟</span>
+                <div className="w-14 h-14 bg-pool-light rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-xl">🌟</span>
                 </div>
-                <h3 className="text-xl font-semibold text-pool-dark mb-2">Premium Venues</h3>
-                <p className="text-gray-600">Hotels, private pools, and unique locations</p>
+                <h3 className="text-lg font-semibold text-pool-dark mb-1">Premium Venues</h3>
+                <p className="text-gray-600 text-sm">Hotels, private pools, and unique locations</p>
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-pool-light rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">📱</span>
+                <div className="w-14 h-14 bg-pool-light rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-xl">📱</span>
                 </div>
-                <h3 className="text-xl font-semibold text-pool-dark mb-2">Simple Booking</h3>
-                <p className="text-gray-600">Easy online booking for instant confirmation</p>
+                <h3 className="text-lg font-semibold text-pool-dark mb-1">Simple Booking</h3>
+                <p className="text-gray-600 text-sm">Easy online booking for instant confirmation</p>
               </div>
             </div>
           </div>
