@@ -10,7 +10,7 @@ const WaitlistLanding = () => {
       <Navbar />
 
       <main className="flex-grow">
-        {/* Hero Section with background image */}
+        {/* Hero Section */}
         <section
           className="relative min-h-[360px] md:min-h-[400px]"
           style={{
@@ -25,7 +25,7 @@ const WaitlistLanding = () => {
 
           <div className="container mx-auto px-4 relative z-10 flex flex-col justify-center min-h-[360px] md:min-h-[400px] pt-10">
             <div className="max-w-3xl mx-auto text-center text-white space-y-4">
-              <h1 className="text-3xl md:text-4xl font-bold">
+              <h1 className="text-3xl md:text-4xl font-bold leading-tight">
                 Find and Book Your Next Pool Day — No Hotel Stay or Special Membership Needed
               </h1>
 
@@ -46,17 +46,16 @@ const WaitlistLanding = () => {
                     size="lg" 
                     className="bg-pool-primary hover:bg-pool-secondary text-white px-6 py-3 text-base font-medium w-full sm:w-auto"
                   >
-                    I'd be interested in booking a PoolPass
+                    I’d be interested in booking a PoolPass
                   </Button>
                 </Link>
-
                 <Link to="/host-waitlist">
                   <Button 
                     size="lg" 
                     variant="outline" 
                     className="border-pool-primary text-pool-primary hover:bg-pool-primary hover:text-white px-6 py-3 text-base font-medium w-full sm:w-auto"
                   >
-                    I'd be interested in hosting my pool space
+                    I’d be interested in hosting my pool space
                   </Button>
                 </Link>
               </div>
@@ -64,7 +63,39 @@ const WaitlistLanding = () => {
           </div>
         </section>
 
-        {/* Features Preview */}
+        {/* Feature Highlights */}
         <section className="bg-white py-12">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              <div className="text-center">
+                <div className="w-14 h-14 bg-pool-light rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-xl">🏊‍♀️</span>
+                </div>
+                <h3 className="text-lg font-semibold text-pool-dark mb-1">Book by the Day</h3>
+                <p className="text-gray-600 text-sm">Access stunning pools with no overnight commitment</p>
+              </div>
+              <div className="text-center">
+                <div className="w-14 h-14 bg-pool-light rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-xl">🌟</span>
+                </div>
+                <h3 className="text-lg font-semibold text-pool-dark mb-1">Premium Locations</h3>
+                <p className="text-gray-600 text-sm">Enjoy hotel-grade pools and curated private spaces</p>
+              </div>
+              <div className="text-center">
+                <div className="w-14 h-14 bg-pool-light rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-xl">📱</span>
+                </div>
+                <h3 className="text-lg font-semibold text-pool-dark mb-1">Simple Booking</h3>
+                <p className="text-gray-600 text-sm">Easy-to-use online platform with instant confirmation</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default WaitlistLanding;
