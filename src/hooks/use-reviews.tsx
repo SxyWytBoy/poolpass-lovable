@@ -1,62 +1,45 @@
+
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Review } from '@/types';
 
 // Create mock data for fallback reviews
-const reviewsDataFallback = [
+const reviewsDataFallback: Review[] = [
   {
     id: "1",
-    user: "Sarah Johnson",
-    avatar: "https://randomuser.me/api/portraits/women/32.jpg",
-    date: "October 2023",
+    pool_id: "1",
+    user_id: "user1",
     rating: 5,
     comment: "Absolutely stunning pool! The facilities were immaculate and the host was incredibly accommodating.",
-    user_id: "user1",
-    pool_id: "1",
-    created_at: "2023-10-15"
+    created_at: "2023-10-15",
+    updated_at: "2023-10-15",
+    profiles: {
+      full_name: "Sarah Johnson",
+      avatar_url: "https://randomuser.me/api/portraits/women/32.jpg"
+    }
   },
   {
     id: "2",
-    user: "Michael Thompson",
-    avatar: "https://randomuser.me/api/portraits/men/41.jpg",
-    date: "September 2023",
+    pool_id: "1", 
+    user_id: "user2",
     rating: 4,
     comment: "Great experience overall. The water temperature was perfect and the atmosphere was very relaxing.",
-    user_id: "user2",
-    pool_id: "1",
-    created_at: "2023-09-28"
+    created_at: "2023-09-28",
+    updated_at: "2023-09-28",
+    profiles: {
+      full_name: "Michael Thompson",
+      avatar_url: "https://randomuser.me/api/portraits/men/41.jpg"
+    }
   }
 ];
 
-// Type for review data to fix TypeScript errors
-export interface ReviewData {
-  id: string;
-  user?: string;
-  avatar?: string;
-  date?: string;
-  rating: number;
-  comment: string;
-  user_id?: string;
-  pool_id?: string;
-  created_at?: string;
-  profiles?: {
-    full_name?: string;
-    avatar_url?: string;
-  };
-}
-
-// Type for profiles data in reviews
-interface ProfileData {
-  id?: string;
-  full_name?: string;
-  avatar_url?: string;
-}
-
 export const useReviews = (poolId: string | undefined) => {
-  // Fetch reviews for this pool
   const { data: reviewsData } = useQuery({
     queryKey: ['reviews', poolId],
     queryFn: async () => {
+      if (!poolId) return reviewsDataFallback;
+      
       try {
         const { data: reviewData, error } = await supabase
           .from('reviews')
@@ -68,7 +51,10 @@ export const useReviews = (poolId: string | undefined) => {
           .order('created_at', { ascending: false })
           .limit(10);
         
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching reviews:", error);
+          return reviewsDataFallback;
+        }
         
         return reviewData || reviewsDataFallback;
       } catch (error) {
@@ -79,24 +65,16 @@ export const useReviews = (poolId: string | undefined) => {
     enabled: !!poolId,
   });
   
-  // Process the reviews data to ensure proper typing
+  // Process the reviews data to ensure proper display formatting
   const processedReviewsData = React.useMemo(() => {
     if (!reviewsData) return [];
     
-    return (reviewsData as ReviewData[]).map(review => {
-      // Ensure profiles is treated as ProfileData or undefined
-      const profileData = review.profiles as ProfileData | undefined;
-      
-      return {
-        ...review,
-        // Use profile data if available, otherwise use fallbacks
-        user: profileData?.full_name || review.user || "Anonymous",
-        avatar: profileData?.avatar_url || review.avatar || "https://via.placeholder.com/40",
-        date: review.created_at 
-          ? new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }) 
-          : review.date || "Unknown date"
-      };
-    });
+    return reviewsData.map(review => ({
+      ...review,
+      user: review.profiles?.full_name || "Anonymous",
+      avatar: review.profiles?.avatar_url || "https://via.placeholder.com/40",
+      date: new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
+    }));
   }, [reviewsData]);
 
   return { reviewsData: processedReviewsData };

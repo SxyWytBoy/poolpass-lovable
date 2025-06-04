@@ -13,6 +13,7 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import HostDashboard from "./pages/HostDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CrmSettings from "./pages/CrmSettings";
 import HowItWorksPage from "./pages/HowItWorksPage";
@@ -56,6 +57,14 @@ const App = () => (
               element={
                 <ProtectedRoute userType="host">
                   <HostDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin-dashboard" 
+              element={
+                <ProtectedRoute userType="admin">
+                  <AdminDashboard />
                 </ProtectedRoute>
               } 
             />

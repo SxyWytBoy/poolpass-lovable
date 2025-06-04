@@ -3,46 +3,25 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Pool } from '@/types';
 
-// Type for host profile data
-interface HostProfile {
-  id?: string;
-  full_name?: string;
-  avatar_url?: string;
-  created_at?: string;
-  [key: string]: any; // For other potential properties
-}
-
-// Mock data for a fallback when API is not available
-const poolDataFallback = {
+// Mock data for fallback
+const poolDataFallback: Pool = {
   id: "1",
-  name: "Luxury Indoor Pool & Spa",
-  description: "This stunning indoor pool and spa is located in a private residence in Kensington. The heated pool is 15m x 5m with a constant depth of 1.4m, perfect for swimming laps or relaxing. The space includes loungers, changing facilities, and optional towel service. The ambient lighting and modern design create a serene atmosphere for your swimming experience.",
+  title: "Luxury Indoor Pool & Spa",
+  description: "This stunning indoor pool and spa is located in a private residence in Kensington. The heated pool is 15m x 5m with a constant depth of 1.4m, perfect for swimming laps or relaxing.",
   location: "Kensington, London",
-  price: 45,
+  latitude: 51.5074,
+  longitude: -0.1278,
+  price_per_hour: 45,
   rating: 4.9,
-  reviews: 128,
-  indoor_outdoor: "indoor" as const,
+  reviews_count: 128,
   images: [
     "https://images.unsplash.com/photo-1572331165267-854da2b10ccc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
-    "https://images.unsplash.com/photo-1575429198097-0414ec08e8cd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
-    "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
-    "https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
+    "https://images.unsplash.com/photo-1575429198097-0414ec08e8cd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
   ],
-  amenities: [
-    { name: "Heated Pool", included: true },
-    { name: "Loungers", included: true },
-    { name: "Towels", included: false },
-    { name: "Changing Room", included: true },
-    { name: "Jacuzzi", included: true },
-    { name: "Sauna", included: false },
-    { name: "Parking", included: true },
-    { name: "WiFi", included: true },
-  ],
+  amenities: [],
   extras: [
     { id: "towels", name: "Towels", price: 5 },
-    { id: "sauna", name: "Sauna Session", price: 15 },
-    { id: "drinks", name: "Welcome Drinks", price: 8 },
-    { id: "instructor", name: "Swimming Instructor (30 min)", price: 25 },
+    { id: "sauna", name: "Sauna Session", price: 15 }
   ],
   pool_details: {
     size: "15m x 5m",
@@ -50,75 +29,56 @@ const poolDataFallback = {
     temperature: "29°C / 84°F",
     maxGuests: 8
   },
-  host: {
-    id: "host-1",
-    name: "Emma",
-    image: "https://randomuser.me/api/portraits/women/44.jpg",
-    responseTime: "Within an hour",
-    joinedDate: "March 2022"
-  },
   available_time_slots: [
-    { id: "full-day", time: "Full Day Access" },
+    { id: "full-day", time: "Full Day Access" }
   ],
   host_id: "host-1",
+  is_active: true,
   created_at: "2023-01-15",
+  updated_at: "2023-01-15"
 };
 
-// Type for processed pool data - fixing missing id property in host
-interface ProcessedPoolData extends Omit<Pool, 'host'> {
-  reviewsData?: any[];
-  host: {
-    id?: string | undefined;
-    name: string;
-    image: string;
-    responseTime: string;
-    joinedDate: string;
-  };
-}
-
 export const usePoolData = (id: string | undefined) => {
-  // Fetch pool data
-  const { data: rawPoolData, isLoading } = useQuery({
+  const { data: poolData, isLoading } = useQuery({
     queryKey: ['pool', id],
     queryFn: async () => {
+      if (!id) return poolDataFallback;
+      
       try {
         const { data, error } = await supabase
           .from('pools')
           .select(`
             *,
-            host:host_id (*)
+            host:host_id (
+              id,
+              full_name,
+              avatar_url,
+              created_at
+            )
           `)
           .eq('id', id)
+          .eq('is_active', true)
           .single();
         
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching pool:", error);
+          return poolDataFallback;
+        }
         
         if (data) {
           // Process the data to match our expected format
-          const hostData = data.host as HostProfile || {};
-          
-          const processedData = {
+          const processedData: Pool = {
             ...data,
             amenities: Array.isArray(data.amenities) ? data.amenities : [],
             extras: Array.isArray(data.extras) ? data.extras : [],
             pool_details: data.pool_details || {
               size: "Unknown",
-              depth: "Unknown",
+              depth: "Unknown", 
               temperature: "Unknown",
               maxGuests: 1
             },
-            // If host information exists, format it, otherwise use fallback
-            host: {
-              id: hostData?.id,
-              name: hostData?.full_name || "Host",
-              image: hostData?.avatar_url || "https://via.placeholder.com/40",
-              responseTime: "Within a day",
-              joinedDate: hostData?.created_at 
-                ? new Date(hostData.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
-                : "Unknown"
-            },
-            available_time_slots: [
-              { id: "full-day", time: "Full Day Access" },
+            available_time_slots: data.available_time_slots || [
+              { id: "full-day", time: "Full Day Access" }
             ]
           };
           return processedData;
@@ -133,9 +93,7 @@ export const usePoolData = (id: string | undefined) => {
     enabled: !!id,
   });
 
-  const poolData: ProcessedPoolData = rawPoolData as ProcessedPoolData;
-
-  return { poolData, isLoading };
+  return { poolData: poolData || poolDataFallback, isLoading };
 };
 
 export { poolDataFallback };

@@ -11,9 +11,11 @@ import BookingAction from './booking/BookingAction';
 interface BookingPanelProps {
   pool: {
     id?: string;
-    price: number;
+    price_per_hour?: number;
+    price?: number; // fallback for compatibility
     rating?: number;
     reviews?: number;
+    reviews_count?: number; // new field name
     available_time_slots: { id: string; time: string }[];
     extras?: { id: string; name: string; price: number }[];
     pool_details?: {
@@ -25,6 +27,9 @@ interface BookingPanelProps {
 }
 
 const BookingPanel = ({ pool, user, onBookNow }: BookingPanelProps) => {
+  const pricePerHour = pool.price_per_hour || pool.price || 0;
+  const reviewsCount = pool.reviews_count || pool.reviews || 0;
+  
   const {
     selectedDate,
     setSelectedDate,
@@ -34,10 +39,10 @@ const BookingPanel = ({ pool, user, onBookNow }: BookingPanelProps) => {
     toggleExtra,
     handleBookNow,
     calculateExtrasPrice
-  } = useBooking(pool.id, user?.id, pool.price);
+  } = useBooking(pool.id, user?.id, pricePerHour);
 
-  // Calculate total price
-  const basePrice = pool?.price || 0;
+  // Calculate total price (assuming 8-hour day for full access)
+  const basePriceForDay = pricePerHour * 8;
   const extrasPrice = calculateExtrasPrice(selectedExtras, pool?.extras);
 
   const handleBookNowClick = () => {
@@ -54,9 +59,9 @@ const BookingPanel = ({ pool, user, onBookNow }: BookingPanelProps) => {
     <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 sticky top-24">
       {/* Price and Rating */}
       <BookingPrice 
-        price={pool.price} 
+        price={basePriceForDay} 
         rating={pool.rating} 
-        reviews={pool.reviews} 
+        reviews={reviewsCount} 
       />
       
       {/* Date Selector */}
@@ -84,7 +89,7 @@ const BookingPanel = ({ pool, user, onBookNow }: BookingPanelProps) => {
       
       {/* Price Summary */}
       <PriceSummary 
-        basePrice={basePrice}
+        basePrice={basePriceForDay}
         extrasPrice={extrasPrice}
         selectedExtras={selectedExtras}
       />

@@ -9,6 +9,90 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      amenities: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      bookings: {
+        Row: {
+          booking_date: string
+          created_at: string
+          end_time: string
+          guests: number
+          id: string
+          pool_id: string
+          special_requests: string | null
+          start_time: string
+          status: string | null
+          total_price: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          booking_date: string
+          created_at?: string
+          end_time: string
+          guests?: number
+          id?: string
+          pool_id: string
+          special_requests?: string | null
+          start_time: string
+          status?: string | null
+          total_price: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          booking_date?: string
+          created_at?: string
+          end_time?: string
+          guests?: number
+          id?: string
+          pool_id?: string
+          special_requests?: string | null
+          start_time?: string
+          status?: string | null
+          total_price?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guest_waitlist: {
         Row: {
           created_at: string
@@ -84,26 +168,187 @@ export type Database = {
         }
         Relationships: []
       }
+      pool_amenities: {
+        Row: {
+          amenity_id: string
+          id: string
+          pool_id: string
+        }
+        Insert: {
+          amenity_id: string
+          id?: string
+          pool_id: string
+        }
+        Update: {
+          amenity_id?: string
+          id?: string
+          pool_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pool_amenities_amenity_id_fkey"
+            columns: ["amenity_id"]
+            isOneToOne: false
+            referencedRelation: "amenities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pool_amenities_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pools: {
+        Row: {
+          amenities: Json | null
+          available_time_slots: Json | null
+          created_at: string
+          description: string | null
+          extras: Json | null
+          host_id: string
+          id: string
+          images: string[] | null
+          is_active: boolean | null
+          latitude: number | null
+          location: string
+          longitude: number | null
+          pool_details: Json | null
+          price_per_hour: number
+          rating: number | null
+          reviews_count: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          amenities?: Json | null
+          available_time_slots?: Json | null
+          created_at?: string
+          description?: string | null
+          extras?: Json | null
+          host_id: string
+          id?: string
+          images?: string[] | null
+          is_active?: boolean | null
+          latitude?: number | null
+          location: string
+          longitude?: number | null
+          pool_details?: Json | null
+          price_per_hour: number
+          rating?: number | null
+          reviews_count?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          amenities?: Json | null
+          available_time_slots?: Json | null
+          created_at?: string
+          description?: string | null
+          extras?: Json | null
+          host_id?: string
+          id?: string
+          images?: string[] | null
+          is_active?: boolean | null
+          latitude?: number | null
+          location?: string
+          longitude?: number | null
+          pool_details?: Json | null
+          price_per_hour?: number
+          rating?: number | null
+          reviews_count?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pools_host_id_fkey"
+            columns: ["host_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
+          avatar_url: string | null
+          bio: string | null
           created_at: string
           email: string | null
+          full_name: string | null
           id: string
+          phone: string | null
           user_type: string | null
         }
         Insert: {
+          avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           email?: string | null
+          full_name?: string | null
           id: string
+          phone?: string | null
           user_type?: string | null
         }
         Update: {
+          avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           email?: string | null
+          full_name?: string | null
           id?: string
+          phone?: string | null
           user_type?: string | null
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          pool_id: string
+          rating: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          pool_id: string
+          rating: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          pool_id?: string
+          rating?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

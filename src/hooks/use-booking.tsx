@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-export const useBooking = (poolId: string | undefined, userId: string | undefined, price: number) => {
+export const useBooking = (poolId: string | undefined, userId: string | undefined, pricePerHour: number) => {
   const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
@@ -37,21 +37,20 @@ export const useBooking = (poolId: string | undefined, userId: string | undefine
     }
     
     try {
-      const timeSlot = poolId ? getTimeSlotText(selectedTimeSlot) : '';
-      
-      // Calculate total price for the booking
-      const basePrice = price || 0;
+      // Calculate total price for the booking (assuming 8-hour day for full access)
+      const basePriceForDay = pricePerHour * 8;
       const extrasPrice = calculateExtrasPrice(selectedExtras, extras);
-      const totalPrice = basePrice + extrasPrice;
+      const totalPrice = basePriceForDay + extrasPrice;
       
       const { error } = await supabase
         .from('bookings')
         .insert({
           pool_id: poolId || '',
           user_id: userId,
-          date: selectedDate.toISOString().split('T')[0],
-          time_slot: timeSlot,
-          extras: selectedExtras,
+          booking_date: selectedDate.toISOString().split('T')[0],
+          start_time: '09:00:00',
+          end_time: '17:00:00',
+          guests: 1,
           total_price: totalPrice,
           status: 'pending'
         });
@@ -80,12 +79,6 @@ export const useBooking = (poolId: string | undefined, userId: string | undefine
     setSelectedDate(undefined);
     setSelectedTimeSlot(null);
     setSelectedExtras([]);
-  };
-
-  const getTimeSlotText = (timeSlotId: string) => {
-    // This function would normally look up the time slot from available slots
-    // For simplicity, returning a placeholder
-    return "Full day access"; // Updated from time slot to full day access
   };
 
   const calculateExtrasPrice = (

@@ -39,6 +39,17 @@ const PoolDetail = () => {
     // We'll delegate this to the BookingPanel component which uses our useBooking hook
     // This is just a wrapper to maintain the same interface
   };
+
+  // Create a formatted host object for compatibility
+  const formattedHost = {
+    id: poolData.host?.id,
+    name: poolData.host?.full_name || 'Host',
+    image: poolData.host?.avatar_url || 'https://via.placeholder.com/40',
+    responseTime: 'Within a day',
+    joinedDate: poolData.host?.created_at 
+      ? new Date(poolData.host.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
+      : 'Unknown'
+  };
   
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -48,13 +59,13 @@ const PoolDetail = () => {
         {/* Photo Gallery Section with Animation */}
         <div className="container mx-auto px-4 py-6">
           <PoolHeader 
-            name={poolData.name} 
+            name={poolData.title} 
             rating={poolData.rating} 
-            reviews={poolData.reviews} 
+            reviews={poolData.reviews_count} 
             location={poolData.location} 
           />
           
-          <PhotoGallery images={poolData.images} name={poolData.name} />
+          <PhotoGallery images={poolData.images} name={poolData.title} />
         </div>
         
         {/* Pool Details & Booking Section */}
@@ -64,7 +75,7 @@ const PoolDetail = () => {
             <div className="lg:col-span-2">
               <PoolInfo 
                 description={poolData.description}
-                host={poolData.host}
+                host={formattedHost}
                 poolDetails={poolData.pool_details}
                 amenities={poolData.amenities}
               />
@@ -72,7 +83,7 @@ const PoolDetail = () => {
               {/* Reviews Section */}
               <ReviewsSection 
                 rating={poolData.rating} 
-                reviews={poolData.reviews} 
+                reviews={poolData.reviews_count} 
                 reviewsData={reviewsData}
               />
             </div>

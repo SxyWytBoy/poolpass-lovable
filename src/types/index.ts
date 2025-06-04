@@ -5,24 +5,23 @@ export type User = {
   full_name?: string;
   avatar_url?: string;
   user_type: 'guest' | 'host' | 'admin';
+  phone?: string;
+  bio?: string;
   created_at: string;
 };
 
 export type Pool = {
   id: string;
-  name: string;
+  title: string;
   description: string;
   location: string;
-  price: number;
+  latitude?: number;
+  longitude?: number;
+  price_per_hour: number;
   rating: number;
-  reviews: number;
-  indoor_outdoor: 'indoor' | 'outdoor' | 'both';
+  reviews_count: number;
   images: string[];
-  tabImages?: {
-    rooftop?: string[];
-    countryhouse?: string[];
-  };
-  amenities: { name: string; included: boolean }[];
+  amenities: any[];
   extras: { id: string; name: string; price: number }[];
   pool_details: {
     size: string;
@@ -30,39 +29,61 @@ export type Pool = {
     temperature: string;
     maxGuests: number;
   };
-  host: {
-    id?: string;
-    name: string;
-    image: string;
-    responseTime: string;
-    joinedDate: string;
-  };
   available_time_slots: { id: string; time: string }[];
   host_id: string;
+  host?: {
+    id: string;
+    full_name: string;
+    avatar_url?: string;
+    created_at: string;
+  };
+  is_active: boolean;
   created_at: string;
-  reviewsData?: any[]; // Added this to allow for reviews data to be included
+  updated_at: string;
 };
 
 export type Review = {
   id: string;
-  user: string;
-  avatar: string;
-  date: string;
-  rating: number;
-  comment: string;
   pool_id: string;
   user_id: string;
+  rating: number;
+  comment?: string;
   created_at: string;
+  updated_at: string;
+  profiles?: {
+    full_name?: string;
+    avatar_url?: string;
+  };
 };
 
 export type Booking = {
   id: string;
   pool_id: string;
   user_id: string;
-  date: string;
-  time_slot: string;
-  extras: string[];
+  booking_date: string;
+  start_time: string;
+  end_time: string;
+  guests: number;
   total_price: number;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  special_requests?: string;
   created_at: string;
+  updated_at: string;
+  pools?: Pool;
+  profiles?: User;
+};
+
+export type Amenity = {
+  id: string;
+  name: string;
+  icon?: string;
+  description?: string;
+  created_at: string;
+};
+
+export type PoolAmenity = {
+  id: string;
+  pool_id: string;
+  amenity_id: string;
+  amenities?: Amenity;
 };
