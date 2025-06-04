@@ -1,4 +1,3 @@
-
 export type User = {
   id: string;
   email: string;
@@ -12,24 +11,19 @@ export type User = {
 
 export type Pool = {
   id: string;
-  title: string;
+  title: string; // Mapped from Supabase 'name'
   description: string;
   location: string;
   latitude?: number;
   longitude?: number;
-  price_per_hour: number;
+  price_per_hour: number; // Mapped from Supabase 'price'
   rating: number;
-  reviews_count: number;
+  reviews_count: number; // Mapped from Supabase 'reviews'
   images: string[];
-  amenities: any[];
-  extras: { id: string; name: string; price: number }[];
-  pool_details: {
-    size: string;
-    depth: string;
-    temperature: string;
-    maxGuests: number;
-  };
-  available_time_slots: { id: string; time: string }[];
+  amenities: Amenity[]; // Changed from any[] to Amenity[]
+  extras: Extra[];
+  pool_details: PoolDetails;
+  available_time_slots: TimeSlot[];
   host_id: string;
   host?: {
     id: string;
@@ -40,6 +34,24 @@ export type Pool = {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+};
+
+export type Extra = {
+  id: string;
+  name: string;
+  price: number;
+};
+
+export type PoolDetails = {
+  size: string;
+  depth: string;
+  temperature: string;
+  maxGuests: number;
+};
+
+export type TimeSlot = {
+  id: string;
+  time: string;
 };
 
 export type Review = {
