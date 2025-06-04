@@ -10,27 +10,27 @@ const WaitlistLanding = () => {
       <Navbar />
       
       <main className="flex-grow">
-        {/* Hero Section */}
+        {/* Hero Section with background image */}
         <section
-          className="section-padding relative"
+          className="section-padding relative min-h-[600px] md:min-h-[700px]"
           style={{
             backgroundImage: `url('/lovable-uploads/waitlist-water.jpg')`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundPosition: 'center center',
             backgroundRepeat: 'no-repeat',
-            color: 'white',
+            backgroundAttachment: 'fixed', // optional, remove if you prefer
           }}
         >
-          {/* Dark overlay for readability */}
+          {/* Dark overlay for text readability */}
           <div className="absolute inset-0 bg-black opacity-40"></div>
-          
-          <div className="container mx-auto px-4 relative z-10">
-            <div className="max-w-4xl mx-auto text-center">
+
+          <div className="container mx-auto px-4 relative z-10 flex flex-col justify-center min-h-[600px] md:min-h-[700px]">
+            <div className="max-w-4xl mx-auto text-center text-white">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
                 Find Your Next Pool Day — No Hotel Stay Needed
               </h1>
               
-              <div className="text-xl md:text-2xl mb-8 space-y-4 text-white/90">
+              <div className="text-xl md:text-2xl mb-8 space-y-4">
                 <p className="leading-relaxed">
                   PoolPass gives you access to beautiful hotel, Airbnb and private pools across the UK — just for the day.
                 </p>
