@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -12,14 +11,26 @@ const WaitlistLanding = () => {
       
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-pool-light via-white to-blue-50 section-padding">
-          <div className="container mx-auto px-4">
+        <section
+          className="section-padding relative"
+          style={{
+            backgroundImage: `url('/lovable-uploads/waitlist-water.jpg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            color: 'white',
+          }}
+        >
+          {/* Dark overlay for readability */}
+          <div className="absolute inset-0 bg-black opacity-40"></div>
+          
+          <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-pool-dark mb-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
                 Find Your Next Pool Day — No Hotel Stay Needed
               </h1>
               
-              <div className="text-xl md:text-2xl text-gray-700 mb-8 space-y-4">
+              <div className="text-xl md:text-2xl mb-8 space-y-4 text-white/90">
                 <p className="leading-relaxed">
                   PoolPass gives you access to beautiful hotel, Airbnb and private pools across the UK — just for the day.
                 </p>
