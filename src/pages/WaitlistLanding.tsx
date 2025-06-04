@@ -40,4 +40,31 @@ const WaitlistLanding = () => {
 
               <p className="font-medium">👇 Join the waitlist and be the first to book.</p>
 
-              <div className="flex flex-col sm:flex-row gap-3 justify-center i
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-4">
+                <Link to="/guest-waitlist">
+                  <Button 
+                    size="lg" 
+                    className="bg-pool-primary hover:bg-pool-secondary text-white px-6 py-3 text-base font-medium w-full sm:w-auto"
+                  >
+                    I'd be interested in booking a PoolPass
+                  </Button>
+                </Link>
+
+                <Link to="/host-waitlist">
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="border-pool-primary text-pool-primary hover:bg-pool-primary hover:text-white px-6 py-3 text-base font-medium w-full sm:w-auto"
+                  >
+                    I'd be interested in hosting my pool space
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Preview */}
+        <section className="bg-white py-12">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
