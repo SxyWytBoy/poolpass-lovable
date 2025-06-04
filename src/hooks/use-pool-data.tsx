@@ -1,9 +1,9 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Pool } from '@/types';
+import { Json } from '@/types/supabase'; // or 'supabase-js' if that's what you use
 
-// Mock data for fallback
+// Fallback mock data
 const poolDataFallback: Pool = {
   id: "1",
   title: "Luxury Indoor Pool & Spa",
@@ -38,12 +38,53 @@ const poolDataFallback: Pool = {
   updated_at: "2023-01-15"
 };
 
+// Type guards
+function isExtraArray(value: Json): value is { id: string; name: string; price: number }[] {
+  return Array.isArray(value) &&
+    value.every(
+      (item) =>
+        typeof item === 'object' &&
+        item !== null &&
+        'id' in item &&
+        'name' in item &&
+        'price' in item
+    );
+}
+
+function isPoolDetails(value: Json): value is {
+  size: string;
+  depth: string;
+  temperature: string;
+  maxGuests: number;
+} {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'size' in value &&
+    'depth' in value &&
+    'temperature' in value &&
+    'maxGuests' in value
+  );
+}
+
+function isTimeSlotArray(value: Json): value is { id: string; time: string }[] {
+  return Array.isArray(value) &&
+    value.every(
+      (item) =>
+        typeof item === 'object' &&
+        item !== null &&
+        'id' in item &&
+        'time' in item
+    );
+}
+
+// Main hook
 export const usePoolData = (id: string | undefined) => {
   const { data: poolData, isLoading } = useQuery({
     queryKey: ['pool', id],
     queryFn: async () => {
       if (!id) return poolDataFallback;
-      
+
       try {
         const { data, error } = await supabase
           .from('pools')
@@ -59,38 +100,40 @@ export const usePoolData = (id: string | undefined) => {
           .eq('id', id)
           .eq('is_active', true)
           .single();
-        
+
         if (error) {
           console.error("Error fetching pool:", error);
           return poolDataFallback;
         }
-        
+
         if (data) {
-          // Process the data to match our expected format
           const processedData: Pool = {
             ...data,
             amenities: Array.isArray(data.amenities) ? data.amenities : [],
-            extras: Array.isArray(data.extras) ? data.extras : [],
-            pool_details: data.pool_details || {
-              size: "Unknown",
-              depth: "Unknown", 
-              temperature: "Unknown",
-              maxGuests: 1
-            },
-            available_time_slots: data.available_time_slots || [
-              { id: "full-day", time: "Full Day Access" }
-            ]
+            extras: isExtraArray(data.extras) ? data.extras : [],
+            pool_details: isPoolDetails(data.pool_details)
+              ? data.pool_details
+              : {
+                  size: "Unknown",
+                  depth: "Unknown",
+                  temperature: "Unknown",
+                  maxGuests: 1
+                },
+            available_time_slots: isTimeSlotArray(data.available_time_slots)
+              ? data.available_time_slots
+              : [{ id: "full-day", time: "Full Day Access" }]
           };
+
           return processedData;
         }
-        
+
         return poolDataFallback;
       } catch (error) {
         console.error("Error fetching pool:", error);
         return poolDataFallback;
       }
     },
-    enabled: !!id,
+    enabled: !!id
   });
 
   return { poolData: poolData || poolDataFallback, isLoading };
