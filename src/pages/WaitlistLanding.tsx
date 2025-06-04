@@ -18,7 +18,7 @@ const WaitlistLanding = () => {
             backgroundSize: 'cover',
             backgroundPosition: 'center center',
             backgroundRepeat: 'no-repeat',
-            backgroundAttachment: 'fixed', // optional, remove if you prefer
+            backgroundAttachment: 'fixed',
           }}
         >
           {/* Dark overlay for text readability */}
@@ -44,7 +44,7 @@ const WaitlistLanding = () => {
                     🏨 Hotels earn extra revenue. You escape without leaving town.
                   </span>
                 </div>
-                <p className="text-xl font-medium text-pool-primary mt-6">
+                <p className="text-xl font-medium text-white mt-6">
                   👇 Join the waitlist and be the first to book.
                 </p>
               </div>
@@ -56,7 +56,7 @@ const WaitlistLanding = () => {
                     size="lg" 
                     className="bg-pool-primary hover:bg-pool-secondary text-white px-8 py-4 text-lg font-medium w-full sm:w-auto"
                   >
-                    🏊‍♀️ I want to swim
+                    I'd be interested in booking a PoolPass
                   </Button>
                 </Link>
                 
@@ -66,7 +66,7 @@ const WaitlistLanding = () => {
                     variant="outline" 
                     className="border-pool-primary text-pool-primary hover:bg-pool-primary hover:text-white px-8 py-4 text-lg font-medium w-full sm:w-auto"
                   >
-                    🏨 I manage a hotel pool
+                    I'd be interested in hosting my pool space
                   </Button>
                 </Link>
               </div>
