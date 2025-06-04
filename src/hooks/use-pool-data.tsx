@@ -1,13 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Pool } from '@/types';
-import { Json } from '@/types/supabase'; // or 'supabase-js' if that's what you use
 
-// Fallback mock data
-const poolDataFallback: Pool = {
+export const poolDataFallback: Pool = {
   id: "1",
   title: "Luxury Indoor Pool & Spa",
-  description: "This stunning indoor pool and spa is located in a private residence in Kensington. The heated pool is 15m x 5m with a constant depth of 1.4m, perfect for swimming laps or relaxing.",
+  description: "This stunning indoor pool and spa is located in a private residence in Kensington.",
   location: "Kensington, London",
   latitude: 51.5074,
   longitude: -0.1278,
@@ -33,110 +31,84 @@ const poolDataFallback: Pool = {
     { id: "full-day", time: "Full Day Access" }
   ],
   host_id: "host-1",
+  host: {
+    id: "host-1",
+    full_name: "Default Host",
+    avatar_url: "",
+    created_at: "2023-01-01"
+  },
   is_active: true,
   created_at: "2023-01-15",
   updated_at: "2023-01-15"
 };
 
-// Type guards
-function isExtraArray(value: Json): value is { id: string; name: string; price: number }[] {
-  return Array.isArray(value) &&
-    value.every(
-      (item) =>
-        typeof item === 'object' &&
-        item !== null &&
-        'id' in item &&
-        'name' in item &&
-        'price' in item
-    );
-}
-
-function isPoolDetails(value: Json): value is {
-  size: string;
-  depth: string;
-  temperature: string;
-  maxGuests: number;
-} {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'size' in value &&
-    'depth' in value &&
-    'temperature' in value &&
-    'maxGuests' in value
-  );
-}
-
-function isTimeSlotArray(value: Json): value is { id: string; time: string }[] {
-  return Array.isArray(value) &&
-    value.every(
-      (item) =>
-        typeof item === 'object' &&
-        item !== null &&
-        'id' in item &&
-        'time' in item
-    );
-}
-
-// Main hook
 export const usePoolData = (id: string | undefined) => {
   const { data: poolData, isLoading } = useQuery({
     queryKey: ['pool', id],
     queryFn: async () => {
       if (!id) return poolDataFallback;
 
-      try {
-        const { data, error } = await supabase
-          .from('pools')
-          .select(`
-            *,
-            host:host_id (
-              id,
-              full_name,
-              avatar_url,
-              created_at
-            )
-          `)
-          .eq('id', id)
-          .eq('is_active', true)
-          .single();
+      const { data, error } = await supabase
+        .from('pools')
+        .select(`
+          *,
+          profiles:host_id (
+            id,
+            full_name,
+            avatar_url,
+            created_at
+          )
+        `)
+        .eq('id', id)
+        .eq('is_active', true)
+        .single();
 
-        if (error) {
-          console.error("Error fetching pool:", error);
-          return poolDataFallback;
-        }
-
-        if (data) {
-          const processedData: Pool = {
-            ...data,
-            amenities: Array.isArray(data.amenities) ? data.amenities : [],
-            extras: isExtraArray(data.extras) ? data.extras : [],
-            pool_details: isPoolDetails(data.pool_details)
-              ? data.pool_details
-              : {
-                  size: "Unknown",
-                  depth: "Unknown",
-                  temperature: "Unknown",
-                  maxGuests: 1
-                },
-            available_time_slots: isTimeSlotArray(data.available_time_slots)
-              ? data.available_time_slots
-              : [{ id: "full-day", time: "Full Day Access" }]
-          };
-
-          return processedData;
-        }
-
-        return poolDataFallback;
-      } catch (error) {
+      if (error || !data) {
         console.error("Error fetching pool:", error);
         return poolDataFallback;
       }
+
+      const processedData: Pool = {
+        id: data.id,
+        title: data.name,
+        description: data.description,
+        location: data.location,
+        latitude: undefined, // not in schema currently
+        longitude: undefined, // not in schema currently
+        price_per_hour: data.price,
+        rating: data.rating,
+        reviews_count: data.reviews,
+        images: data.images,
+        amenities: Array.isArray(data.amenities) ? data.amenities : [],
+        extras: Array.isArray(data.extras) ? data.extras : [],
+        pool_details: data.pool_details || {
+          size: "Unknown",
+          depth: "Unknown",
+          temperature: "Unknown",
+          maxGuests: 1
+        },
+        available_time_slots: [
+          { id: "full-day", time: "Full Day Access" } // Supabase schema does not include this yet
+        ],
+        host_id: data.host_id,
+        host: data.profiles || {
+          id: data.host_id,
+          full_name: "Unknown Host",
+          avatar_url: "",
+          created_at: ""
+        },
+        is_active: true,
+        created_at: data.created_at,
+        updated_at: data.created_at // No `updated_at` in schema
+      };
+
+      return processedData;
     },
-    enabled: !!id
+    enabled: !!id,
   });
 
-  return { poolData: poolData || poolDataFallback, isLoading };
+  return {
+    poolData: poolData || poolDataFallback,
+    isLoading,
+  };
 };
-
-export { poolDataFallback };
