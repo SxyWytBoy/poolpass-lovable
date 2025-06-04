@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Star, ArrowRight } from 'lucide-react';
@@ -26,7 +25,7 @@ interface PoolCardProps {
   image: string;
   indoorOutdoor: 'indoor' | 'outdoor' | 'both';
   amenities?: string[];
-  fallbackImage?: string; // Added fallbackImage property
+  fallbackImage?: string;
   className?: string;
 }
 
@@ -40,7 +39,7 @@ const PoolCard = ({
   image,
   indoorOutdoor,
   amenities = [],
-  fallbackImage, // Added fallbackImage parameter
+  fallbackImage,
   className
 }: PoolCardProps) => {
   
@@ -53,6 +52,12 @@ const PoolCard = ({
       description: `Showing quick preview for ${name}`,
     });
   };
+
+  // Friendly label for indoorOutdoor
+  const indoorOutdoorLabel = 
+    indoorOutdoor === 'both' ? 'Indoor & Outdoor' :
+    indoorOutdoor === 'indoor' ? 'Indoor' :
+    'Outdoor';
   
   return (
     <Link 
@@ -62,27 +67,21 @@ const PoolCard = ({
       <Card className="overflow-hidden border h-full group">
         {/* Image Container */}
         <div className="relative">
-          <AspectRatio ratio={4/3}>
+          <AspectRatio ratio={4 / 3}>
             <img 
               src={image} 
               alt={name}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               onError={(e) => {
-                // Use the fallbackImage if provided, otherwise use a placeholder
                 (e.target as HTMLImageElement).src = fallbackImage || `https://via.placeholder.com/800x600?text=${encodeURIComponent(name)}`;
               }}
             />
           </AspectRatio>
           <div className="absolute top-3 left-3 flex gap-2">
             <Badge 
-              className={cn(
-                "text-xs font-medium px-2 py-0.5",
-                indoorOutdoor === 'indoor' ? "bg-pool-light text-pool-dark" : 
-                indoorOutdoor === 'outdoor' ? "bg-pool-light text-pool-dark" :
-                "bg-pool-light text-pool-dark"
-              )}
+              className="text-xs font-medium px-2 py-0.5 bg-pool-light text-pool-dark"
             >
-              {indoorOutdoor === 'both' ? 'Indoor & Outdoor' : indoorOutdoor}
+              {indoorOutdoorLabel}
             </Badge>
           </div>
         </div>
