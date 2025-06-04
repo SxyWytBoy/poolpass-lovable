@@ -8,7 +8,6 @@ import Testimonials from '@/components/Testimonials';
 import Footer from '@/components/Footer';
 import PoolCard from '@/components/PoolCard';
 
-// Mock data for featured pools
 const featuredPools = [
   {
     id: "1",
@@ -28,7 +27,7 @@ const featuredPools = [
     price: 60,
     rating: 4.7,
     reviews: 85,
-    image: "https://images.unsplash.com/photo-1477120292453-dbba2d987c24?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
+    image: "/lovable-uploads/outdoor-swimming-pool.jpg", // Updated to local image
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "City View", "Bar Service", "Loungers"]
   },
@@ -39,7 +38,7 @@ const featuredPools = [
     price: 38,
     rating: 4.8,
     reviews: 63,
-    image: "https://images.unsplash.com/photo-1551123847-4041291bec0c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
+    image: "/lovable-uploads/indoor-outdoor-swimming-pool.jpg", // Updated to local image
     indoorOutdoor: "both" as const,
     amenities: ["Garden Access", "Changing Rooms", "Food Available"]
   }
@@ -49,12 +48,12 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       {/* Hero Section with additional top margin class */}
       <div className="mt-10 md:mt-12">
         <HeroSection />
       </div>
-      
+
       {/* Featured Pools Section */}
       <section className="bg-white section-padding">
         <div className="container mx-auto px-4">
@@ -64,7 +63,7 @@ const Index = () => {
               View all pools
             </Link>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredPools.map((pool) => (
               <PoolCard
@@ -81,7 +80,7 @@ const Index = () => {
               />
             ))}
           </div>
-          
+
           <div className="mt-10 text-center">
             <Link to="/pools">
               <Button className="bg-pool-primary hover:bg-pool-secondary text-white">
@@ -91,10 +90,10 @@ const Index = () => {
           </div>
         </div>
       </section>
-      
+
       {/* How It Works Section */}
       <HowItWorks />
-      
+
       {/* Host CTA Section */}
       <section className="bg-white section-padding">
         <div className="container mx-auto px-4">
@@ -116,7 +115,7 @@ const Index = () => {
                   </Link>
                 </div>
               </div>
-              
+
               {/* Image Side */}
               <div className="relative h-64 md:h-auto">
                 <img 
@@ -129,10 +128,10 @@ const Index = () => {
           </div>
         </div>
       </section>
-      
+
       {/* Testimonials Section */}
       <Testimonials />
-      
+
       {/* Footer */}
       <Footer />
     </div>
