@@ -1,3 +1,4 @@
+
 export type User = {
   id: string;
   email: string;
@@ -11,14 +12,14 @@ export type User = {
 
 export type Pool = {
   id: string;
-  title: string; // Mapped from Supabase 'name'
+  title: string; // Mapped from Supabase 'title'
   description: string;
   location: string;
   latitude?: number;
   longitude?: number;
-  price_per_hour: number; // Mapped from Supabase 'price'
+  price_per_hour: number; // Mapped from Supabase 'price_per_hour'
   rating: number;
-  reviews_count: number; // Mapped from Supabase 'reviews'
+  reviews_count: number; // Mapped from Supabase 'reviews_count'
   images: string[];
   amenities: Amenity[]; // Changed from any[] to Amenity[]
   extras: Extra[];
@@ -59,13 +60,16 @@ export type Review = {
   pool_id: string;
   user_id: string;
   rating: number;
-  comment?: string;
+  comment: string; // Make comment required to match component expectations
   created_at: string;
   updated_at: string;
   profiles?: {
     full_name?: string;
     avatar_url?: string;
   };
+  user?: string; // Add processed fields for display
+  avatar?: string;
+  date?: string;
 };
 
 export type Booking = {
@@ -91,6 +95,7 @@ export type Amenity = {
   icon?: string;
   description?: string;
   created_at: string;
+  included?: boolean; // Add for PoolInfo component compatibility
 };
 
 export type PoolAmenity = {

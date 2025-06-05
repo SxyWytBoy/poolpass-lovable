@@ -50,6 +50,12 @@ const PoolDetail = () => {
       ? new Date(poolData.host.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
       : 'Unknown'
   };
+
+  // Format amenities for PoolInfo component (add included property)
+  const formattedAmenities = poolData.amenities.map(amenity => ({
+    ...amenity,
+    included: true // All amenities are included by default
+  }));
   
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -77,7 +83,7 @@ const PoolDetail = () => {
                 description={poolData.description}
                 host={formattedHost}
                 poolDetails={poolData.pool_details}
-                amenities={poolData.amenities}
+                amenities={formattedAmenities}
               />
               
               {/* Reviews Section */}

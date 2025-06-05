@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Pool } from '@/types';
@@ -70,23 +71,25 @@ export const usePoolData = (id: string | undefined) => {
 
       const processedData: Pool = {
         id: data.id,
-        title: data.name,
+        title: data.title, // Use correct field name
         description: data.description,
         location: data.location,
-        latitude: undefined, // not in schema currently
-        longitude: undefined, // not in schema currently
-        price_per_hour: data.price,
-        rating: data.rating,
-        reviews_count: data.reviews,
-        images: data.images,
-        amenities: Array.isArray(data.amenities) ? data.amenities : [],
-        extras: Array.isArray(data.extras) ? data.extras : [],
-        pool_details: data.pool_details || {
-          size: "Unknown",
-          depth: "Unknown",
-          temperature: "Unknown",
-          maxGuests: 1
-        },
+        latitude: data.latitude || undefined,
+        longitude: data.longitude || undefined,
+        price_per_hour: data.price_per_hour, // Use correct field name
+        rating: data.rating || 0,
+        reviews_count: data.reviews_count || 0, // Use correct field name
+        images: data.images || [],
+        amenities: Array.isArray(data.amenities) ? data.amenities as any[] : [],
+        extras: Array.isArray(data.extras) ? data.extras as any[] : [],
+        pool_details: (typeof data.pool_details === 'object' && data.pool_details !== null) 
+          ? data.pool_details as any
+          : {
+              size: "Unknown",
+              depth: "Unknown", 
+              temperature: "Unknown",
+              maxGuests: 1
+            },
         available_time_slots: [
           { id: "full-day", time: "Full Day Access" } // Supabase schema does not include this yet
         ],
@@ -99,7 +102,7 @@ export const usePoolData = (id: string | undefined) => {
         },
         is_active: true,
         created_at: data.created_at,
-        updated_at: data.created_at // No `updated_at` in schema
+        updated_at: data.updated_at
       };
 
       return processedData;

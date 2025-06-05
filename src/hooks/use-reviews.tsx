@@ -71,6 +71,7 @@ export const useReviews = (poolId: string | undefined) => {
     
     return reviewsData.map(review => ({
       ...review,
+      comment: review.comment || "No comment provided", // Ensure comment is always a string
       user: review.profiles?.full_name || "Anonymous",
       avatar: review.profiles?.avatar_url || "https://via.placeholder.com/40",
       date: new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
