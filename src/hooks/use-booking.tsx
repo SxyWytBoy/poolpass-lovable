@@ -8,6 +8,7 @@ export const useBooking = (poolId: string | undefined, userId: string | undefine
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const toggleExtra = (extraId: string) => {
     if (selectedExtras.includes(extraId)) {
@@ -36,13 +37,16 @@ export const useBooking = (poolId: string | undefined, userId: string | undefine
       return;
     }
     
+    setIsProcessingPayment(true);
+    
     try {
       // Calculate total price for the booking (assuming 8-hour day for full access)
       const basePriceForDay = pricePerHour * 8;
       const extrasPrice = calculateExtrasPrice(selectedExtras, extras);
       const totalPrice = basePriceForDay + extrasPrice;
       
-      const { error } = await supabase
+      // Create booking first
+      const { data: booking, error: bookingError } = await supabase
         .from('bookings')
         .insert({
           pool_id: poolId || '',
@@ -53,14 +57,35 @@ export const useBooking = (poolId: string | undefined, userId: string | undefine
           guests: 1,
           total_price: totalPrice,
           status: 'pending'
-        });
+        })
+        .select()
+        .single();
         
-      if (error) throw error;
+      if (bookingError) throw bookingError;
       
+      // Create payment intent
+      const { data: paymentData, error: paymentError } = await supabase.functions.invoke(
+        'create-payment-intent',
+        {
+          body: {
+            bookingId: booking.id,
+            amount: totalPrice,
+            currency: 'gbp'
+          }
+        }
+      );
+      
+      if (paymentError) throw paymentError;
+      
+      // Here you would normally redirect to Stripe Checkout or handle the payment
+      // For now, we'll just show a success message
       toast({
-        title: "Booking successful!",
-        description: "You can view your booking in your dashboard",
+        title: "Payment initiated!",
+        description: "You will be redirected to complete payment",
       });
+      
+      // In a real implementation, you would use the client_secret to complete the payment
+      console.log('Payment client secret:', paymentData.client_secret);
       
       // Reset form
       resetForm();
@@ -72,6 +97,8 @@ export const useBooking = (poolId: string | undefined, userId: string | undefine
         description: "There was an error processing your booking",
         variant: "destructive",
       });
+    } finally {
+      setIsProcessingPayment(false);
     }
   };
 
@@ -99,6 +126,7 @@ export const useBooking = (poolId: string | undefined, userId: string | undefine
     selectedExtras,
     toggleExtra,
     handleBookNow,
-    calculateExtrasPrice
+    calculateExtrasPrice,
+    isProcessingPayment
   };
 };

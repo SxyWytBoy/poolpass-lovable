@@ -1,4 +1,3 @@
-
 export type User = {
   id: string;
   email: string;
@@ -103,4 +102,57 @@ export type PoolAmenity = {
   pool_id: string;
   amenity_id: string;
   amenities?: Amenity;
+};
+
+export type Payment = {
+  id: string;
+  booking_id: string;
+  stripe_payment_intent_id?: string;
+  amount: number;
+  currency: string;
+  status: 'pending' | 'processing' | 'succeeded' | 'failed' | 'canceled';
+  host_payout_amount?: number;
+  platform_fee?: number;
+  processed_at?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type HostPayout = {
+  id: string;
+  host_id: string;
+  payment_id: string;
+  amount: number;
+  currency: string;
+  stripe_transfer_id?: string;
+  status: 'pending' | 'processing' | 'paid' | 'failed';
+  processed_at?: string;
+  created_at: string;
+};
+
+export type CrmIntegration = {
+  id: string;
+  host_id: string;
+  provider: 'mews' | 'cloudbeds' | 'custom';
+  api_key?: string;
+  oauth_token?: string;
+  refresh_token?: string;
+  base_url?: string;
+  client_id?: string;
+  expires_at?: string;
+  is_active: boolean;
+  last_sync_at?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AvailabilitySyncLog = {
+  id: string;
+  pool_id: string;
+  crm_integration_id: string;
+  sync_type: 'availability' | 'pools' | 'bookings';
+  status: 'success' | 'error' | 'in_progress';
+  message?: string;
+  synced_data?: any;
+  created_at: string;
 };
