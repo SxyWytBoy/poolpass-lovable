@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
@@ -23,6 +23,7 @@ const formSchema = z.object({
   poolType: z.array(z.string()).min(1, 'Please select at least one pool type'),
   currentUse: z.array(z.string()).min(1, 'Please select at least one option'),
   interestLevel: z.array(z.string()).min(1, 'Please select your interest level'),
+  crmProvider: z.string().optional(),
   additionalInfo: z.string().optional(),
 });
 
@@ -43,6 +44,7 @@ const HostWaitlist = () => {
       poolType: [],
       currentUse: [],
       interestLevel: [],
+      crmProvider: '',
       additionalInfo: '',
     },
   });
@@ -109,6 +111,15 @@ const HostWaitlist = () => {
     { id: 'curious', label: 'Just curious' },
     { id: 'interested', label: 'Interested in learning more' },
     { id: 'ready', label: 'Ready to be listed' },
+  ];
+
+  const crmProviders = [
+    { value: 'mews', label: 'Mews' },
+    { value: 'cloudbeds', label: 'Cloudbeds' },
+    { value: 'opera', label: 'Opera PMS' },
+    { value: 'protel', label: 'Protel' },
+    { value: 'other', label: 'Other' },
+    { value: 'none', label: 'No CRM system' },
   ];
 
   if (isSubmitted) {
@@ -202,6 +213,31 @@ const HostWaitlist = () => {
                         <FormControl>
                           <Input placeholder="e.g. London, Manchester, Bristol" {...field} />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="crmProvider"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Current Hotel Management System (Optional)</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select your CRM/PMS system" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {crmProviders.map((provider) => (
+                              <SelectItem key={provider.value} value={provider.value}>
+                                {provider.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
