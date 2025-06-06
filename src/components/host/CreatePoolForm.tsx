@@ -1,97 +1,77 @@
 
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import ImageUpload from '@/components/ImageUpload';
-import { MapPin, DollarSign } from 'lucide-react';
-
-const poolSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
-  location: z.string().min(1, 'Location is required'),
-  price_per_hour: z.number().min(1, 'Price must be greater than 0'),
-  pool_size: z.string().min(1, 'Pool size is required'),
-  pool_depth: z.string().min(1, 'Pool depth is required'),
-  pool_temperature: z.string().min(1, 'Pool temperature is required'),
-  max_guests: z.number().min(1, 'Max guests must be at least 1'),
-});
-
-type PoolFormData = z.infer<typeof poolSchema>;
+import { Label } from '@/components/ui/label';
+import { Loader2, Upload } from 'lucide-react';
 
 interface CreatePoolFormProps {
-  onSuccess?: () => void;
+  onSuccess: () => void;
 }
 
-const CreatePoolForm = ({ onSuccess }: CreatePoolFormProps) => {
-  const [images, setImages] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const CreatePoolForm: React.FC<CreatePoolFormProps> = ({ onSuccess }) => {
+  const { user } = useAuth();
   const { toast } = useToast();
-
-  const form = useForm<PoolFormData>({
-    resolver: zodResolver(poolSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      location: '',
-      price_per_hour: 25,
-      pool_size: '',
-      pool_depth: '',
-      pool_temperature: '',
-      max_guests: 1,
-    },
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    location: '',
+    price_per_hour: '',
+    maxGuests: '',
+    size: '',
+    depth: '',
+    temperature: ''
   });
 
-  const onSubmit = async (data: PoolFormData) => {
-    setIsSubmitting(true);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    setIsLoading(true);
     
     try {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) {
-        throw new Error('Not authenticated');
-      }
-
-      // Create pool record
-      const { data: pool, error } = await supabase
+      const { error } = await supabase
         .from('pools')
         .insert({
-          title: data.title,
-          description: data.description,
-          location: data.location,
-          price_per_hour: data.price_per_hour,
-          host_id: userData.user.id,
-          images: images,
+          title: formData.title,
+          description: formData.description,
+          location: formData.location,
+          price_per_hour: parseFloat(formData.price_per_hour),
+          host_id: user.id,
           pool_details: {
-            size: data.pool_size,
-            depth: data.pool_depth,
-            temperature: data.pool_temperature,
-            maxGuests: data.max_guests
+            maxGuests: parseInt(formData.maxGuests),
+            size: formData.size,
+            depth: formData.depth,
+            temperature: formData.temperature
           },
           amenities: [],
           extras: [],
-          is_active: false // Needs approval
-        })
-        .select()
-        .single();
+          images: [],
+          is_active: false // Requires approval
+        });
 
       if (error) throw error;
 
       toast({
         title: "Pool created successfully!",
-        description: "Your pool is pending approval and will be listed soon.",
+        description: "Your pool listing has been submitted for approval.",
       });
 
-      form.reset();
-      setImages([]);
-      onSuccess?.();
-      
+      onSuccess();
     } catch (error) {
       console.error('Error creating pool:', error);
       toast({
@@ -100,172 +80,140 @@ const CreatePoolForm = ({ onSuccess }: CreatePoolFormProps) => {
         variant: "destructive",
       });
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <MapPin className="w-5 h-5" />
-          List Your Pool
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Pool Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Beautiful Outdoor Pool in Kensington" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Describe your pool, facilities, and what makes it special..."
-                      rows={4}
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Kensington, London" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="price_per_hour"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" />
-                    Price per Hour (£)
-                  </FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      {...field} 
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="pool_size"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Pool Size</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. 15m x 5m" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="pool_depth"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Pool Depth</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. 1.4m constant" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="pool_temperature"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Water Temperature</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. 29°C / 84°F" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="max_guests"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Max Guests</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        {...field} 
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+    <div className="max-w-2xl mx-auto">
+      <Card>
+        <CardHeader>
+          <CardTitle>Create New Pool Listing</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <Label htmlFor="title">Pool Title</Label>
+              <Input
+                id="title"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                placeholder="e.g., Luxury Indoor Pool & Spa"
+                required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Pool Images</label>
-              <ImageUpload 
-                onImagesUploaded={setImages}
-                existingImages={images}
-                maxImages={10}
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="Describe your pool, amenities, and what makes it special..."
+                rows={4}
+                required
               />
             </div>
 
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Creating Pool...' : 'Create Pool Listing'}
+            <div>
+              <Label htmlFor="location">Location</Label>
+              <Input
+                id="location"
+                name="location"
+                value={formData.location}
+                onChange={handleInputChange}
+                placeholder="e.g., Kensington, London"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="price_per_hour">Price per Hour (£)</Label>
+                <Input
+                  id="price_per_hour"
+                  name="price_per_hour"
+                  type="number"
+                  step="0.01"
+                  value={formData.price_per_hour}
+                  onChange={handleInputChange}
+                  placeholder="45.00"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="maxGuests">Max Guests</Label>
+                <Input
+                  id="maxGuests"
+                  name="maxGuests"
+                  type="number"
+                  value={formData.maxGuests}
+                  onChange={handleInputChange}
+                  placeholder="8"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="size">Pool Size</Label>
+                <Input
+                  id="size"
+                  name="size"
+                  value={formData.size}
+                  onChange={handleInputChange}
+                  placeholder="15m x 5m"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="depth">Depth</Label>
+                <Input
+                  id="depth"
+                  name="depth"
+                  value={formData.depth}
+                  onChange={handleInputChange}
+                  placeholder="1.4m constant"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="temperature">Temperature</Label>
+                <Input
+                  id="temperature"
+                  name="temperature"
+                  value={formData.temperature}
+                  onChange={handleInputChange}
+                  placeholder="29°C / 84°F"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label>Pool Images</Label>
+              <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                <p className="mt-2 text-sm text-gray-600">
+                  Upload pool images (coming soon)
+                </p>
+              </div>
+            </div>
+
+            <Button type="submit" disabled={isLoading} className="w-full">
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Create Pool Listing
             </Button>
           </form>
-        </Form>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
