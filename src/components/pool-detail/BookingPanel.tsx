@@ -38,7 +38,8 @@ const BookingPanel = ({ pool, user, onBookNow }: BookingPanelProps) => {
     selectedExtras,
     toggleExtra,
     handleBookNow,
-    calculateExtrasPrice
+    calculateExtrasPrice,
+    isProcessingPayment
   } = useBooking(pool.id, user?.id, pricePerHour);
 
   // Calculate total price (assuming 8-hour day for full access)
@@ -98,6 +99,7 @@ const BookingPanel = ({ pool, user, onBookNow }: BookingPanelProps) => {
       <BookingAction 
         isUserLoggedIn={!!user}
         isBookingValid={isBookingValid}
+        isProcessingPayment={isProcessingPayment}
         onBookNow={handleBookNowClick}
       />
     </div>

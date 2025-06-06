@@ -40,7 +40,7 @@ export const useBooking = (poolId: string | undefined, userId: string | undefine
     setIsProcessingPayment(true);
     
     try {
-      // Calculate total price for the booking (assuming 8-hour day for full access)
+      // Calculate total price for the booking (8-hour day for full access)
       const basePriceForDay = pricePerHour * 8;
       const extrasPrice = calculateExtrasPrice(selectedExtras, extras);
       const totalPrice = basePriceForDay + extrasPrice;
@@ -63,7 +63,7 @@ export const useBooking = (poolId: string | undefined, userId: string | undefine
         
       if (bookingError) throw bookingError;
       
-      // Create payment intent
+      // Create payment intent using the existing edge function
       const { data: paymentData, error: paymentError } = await supabase.functions.invoke(
         'create-payment-intent',
         {
@@ -77,15 +77,16 @@ export const useBooking = (poolId: string | undefined, userId: string | undefine
       
       if (paymentError) throw paymentError;
       
-      // Here you would normally redirect to Stripe Checkout or handle the payment
-      // For now, we'll just show a success message
+      // Show success message and provide next steps
       toast({
-        title: "Payment initiated!",
-        description: "You will be redirected to complete payment",
+        title: "Payment session created!",
+        description: "Complete your payment to confirm the booking",
       });
       
-      // In a real implementation, you would use the client_secret to complete the payment
+      // In a real implementation, you would integrate with Stripe Elements
+      // or redirect to Stripe Checkout using the client_secret
       console.log('Payment client secret:', paymentData.client_secret);
+      console.log('Booking created with ID:', booking.id);
       
       // Reset form
       resetForm();
@@ -94,7 +95,7 @@ export const useBooking = (poolId: string | undefined, userId: string | undefine
       console.error("Error booking pool:", error);
       toast({
         title: "Booking failed",
-        description: "There was an error processing your booking",
+        description: error instanceof Error ? error.message : "There was an error processing your booking",
         variant: "destructive",
       });
     } finally {
