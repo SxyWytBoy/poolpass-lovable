@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Edit, X, MessageSquare } from 'lucide-react';
+import { Calendar, Edit, MessageSquare } from 'lucide-react';
 
 interface Booking {
   id: string;
@@ -22,9 +22,11 @@ interface Booking {
   status: string;
   cancellation_policy: string;
   pools: {
+    id: string;
     title: string;
     location: string;
     images: string[];
+    host_id: string;
   };
 }
 
@@ -43,7 +45,7 @@ const BookingManagement = () => {
         .from('bookings')
         .select(`
           *,
-          pools:pool_id (title, location, images)
+          pools:pool_id (id, title, location, images, host_id)
         `)
         .eq('user_id', user?.id)
         .order('booking_date', { ascending: false });
@@ -73,7 +75,7 @@ const BookingManagement = () => {
 
       // Create notification for the host
       const booking = bookings.find(b => b.id === bookingId);
-      if (booking) {
+      if (booking?.pools?.host_id) {
         await supabase
           .from('notifications')
           .insert({

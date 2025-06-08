@@ -11,6 +11,10 @@ import { Badge } from '@/components/ui/badge';
 import { Send, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+interface Profile {
+  full_name: string;
+}
+
 interface Message {
   id: string;
   conversation_id: string;
@@ -20,7 +24,8 @@ interface Message {
   message_type: string;
   is_read: boolean;
   created_at: string;
-  sender?: { full_name: string };
+  sender?: Profile;
+  recipient?: Profile;
 }
 
 interface Conversation {
@@ -50,25 +55,41 @@ const MessageCenter = () => {
           recipient_id,
           message_text,
           created_at,
-          is_read,
-          sender:sender_id (full_name),
-          recipient:recipient_id (full_name)
+          is_read
         `)
         .or(`sender_id.eq.${user?.id},recipient_id.eq.${user?.id}`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
+      // Get unique user IDs to fetch profiles
+      const userIds = new Set<string>();
+      data.forEach((message: any) => {
+        userIds.add(message.sender_id);
+        userIds.add(message.recipient_id);
+      });
+
+      // Fetch profiles for all users
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', Array.from(userIds));
+
+      const profileMap = new Map();
+      profiles?.forEach(profile => {
+        profileMap.set(profile.id, profile);
+      });
+
       // Group by conversation and get latest message per conversation
       const conversationMap = new Map();
       data.forEach((message: any) => {
         const otherUserId = message.sender_id === user?.id ? message.recipient_id : message.sender_id;
-        const otherUser = message.sender_id === user?.id ? message.recipient : message.sender;
+        const otherUser = profileMap.get(otherUserId);
         
         if (!conversationMap.has(message.conversation_id)) {
           conversationMap.set(message.conversation_id, {
             id: message.conversation_id,
-            other_user: { id: otherUserId, full_name: otherUser.full_name },
+            other_user: { id: otherUserId, full_name: otherUser?.full_name || 'Unknown User' },
             last_message: message.message_text,
             updated_at: message.created_at,
             unread_count: 0
@@ -90,14 +111,29 @@ const MessageCenter = () => {
       const { data, error } = await supabase
         .from('messages')
         .select(`
-          *,
-          sender:sender_id (full_name)
+          *
         `)
         .eq('conversation_id', selectedConversation)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      return data;
+
+      // Get sender profiles
+      const senderIds = [...new Set(data.map(m => m.sender_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', senderIds);
+
+      const profileMap = new Map();
+      profiles?.forEach(profile => {
+        profileMap.set(profile.id, profile);
+      });
+
+      return data.map(message => ({
+        ...message,
+        sender: profileMap.get(message.sender_id)
+      }));
     },
     enabled: !!selectedConversation,
   });
