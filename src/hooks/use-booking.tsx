@@ -9,6 +9,8 @@ export const useBooking = (poolId: string | undefined, userId: string | undefine
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [bookingId, setBookingId] = useState<string | null>(null);
 
   const toggleExtra = (extraId: string) => {
     if (selectedExtras.includes(extraId)) {
@@ -56,46 +58,32 @@ export const useBooking = (poolId: string | undefined, userId: string | undefine
           end_time: '17:00:00',
           guests: 1,
           total_price: totalPrice,
-          status: 'pending'
+          status: 'pending',
+          cancellation_policy: 'flexible'
         })
         .select()
         .single();
         
       if (bookingError) throw bookingError;
       
-      // Create payment intent using the existing edge function
-      const { data: paymentData, error: paymentError } = await supabase.functions.invoke(
-        'create-payment-intent',
-        {
-          body: {
-            bookingId: booking.id,
-            amount: totalPrice,
-            currency: 'gbp'
-          }
-        }
-      );
+      setBookingId(booking.id);
+      setShowCheckout(true);
       
-      if (paymentError) throw paymentError;
-      
-      // Show success message and provide next steps
-      toast({
-        title: "Payment session created!",
-        description: "Complete your payment to confirm the booking",
-      });
-      
-      // In a real implementation, you would integrate with Stripe Elements
-      // or redirect to Stripe Checkout using the client_secret
-      console.log('Payment client secret:', paymentData.client_secret);
-      console.log('Booking created with ID:', booking.id);
-      
-      // Reset form
-      resetForm();
+      // Create notification for successful booking creation
+      await supabase
+        .from('notifications')
+        .insert({
+          user_id: userId,
+          title: 'Booking Created',
+          message: `Your booking for ${selectedDate.toLocaleDateString()} has been created. Complete payment to confirm.`,
+          type: 'booking',
+        });
       
     } catch (error) {
-      console.error("Error booking pool:", error);
+      console.error("Error creating booking:", error);
       toast({
         title: "Booking failed",
-        description: error instanceof Error ? error.message : "There was an error processing your booking",
+        description: error instanceof Error ? error.message : "There was an error creating your booking",
         variant: "destructive",
       });
     } finally {
@@ -103,10 +91,26 @@ export const useBooking = (poolId: string | undefined, userId: string | undefine
     }
   };
 
+  const handlePaymentSuccess = () => {
+    setShowCheckout(false);
+    resetForm();
+    
+    toast({
+      title: "Payment successful!",
+      description: "Your booking has been confirmed. Check your email for details.",
+    });
+  };
+
+  const handlePaymentCancel = () => {
+    setShowCheckout(false);
+    setIsProcessingPayment(false);
+  };
+
   const resetForm = () => {
     setSelectedDate(undefined);
     setSelectedTimeSlot(null);
     setSelectedExtras([]);
+    setBookingId(null);
   };
 
   const calculateExtrasPrice = (
@@ -128,6 +132,10 @@ export const useBooking = (poolId: string | undefined, userId: string | undefine
     toggleExtra,
     handleBookNow,
     calculateExtrasPrice,
-    isProcessingPayment
+    isProcessingPayment,
+    showCheckout,
+    bookingId,
+    handlePaymentSuccess,
+    handlePaymentCancel
   };
 };

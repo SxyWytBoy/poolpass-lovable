@@ -33,14 +33,132 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          created_at: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          page_url: string | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          page_url?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          page_url?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      availability_calendar: {
+        Row: {
+          created_at: string | null
+          custom_price: number | null
+          date: string
+          id: string
+          is_available: boolean | null
+          notes: string | null
+          pool_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          custom_price?: number | null
+          date: string
+          id?: string
+          is_available?: boolean | null
+          notes?: string | null
+          pool_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          custom_price?: number | null
+          date?: string
+          id?: string
+          is_available?: boolean | null
+          notes?: string | null
+          pool_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_calendar_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      booking_modifications: {
+        Row: {
+          booking_id: string | null
+          fee_amount: number | null
+          id: string
+          modification_type: string
+          new_value: Json | null
+          original_value: Json | null
+          processed_at: string | null
+          requested_at: string | null
+          requested_by: string | null
+          status: string | null
+        }
+        Insert: {
+          booking_id?: string | null
+          fee_amount?: number | null
+          id?: string
+          modification_type: string
+          new_value?: Json | null
+          original_value?: Json | null
+          processed_at?: string | null
+          requested_at?: string | null
+          requested_by?: string | null
+          status?: string | null
+        }
+        Update: {
+          booking_id?: string | null
+          fee_amount?: number | null
+          id?: string
+          modification_type?: string
+          new_value?: Json | null
+          original_value?: Json | null
+          processed_at?: string | null
+          requested_at?: string | null
+          requested_by?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_modifications_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           booking_date: string
+          cancellation_policy: string | null
           created_at: string
           end_time: string
           guests: number
           id: string
+          modification_deadline: string | null
           pool_id: string
+          security_deposit_amount: number | null
           special_requests: string | null
           start_time: string
           status: string | null
@@ -50,11 +168,14 @@ export type Database = {
         }
         Insert: {
           booking_date: string
+          cancellation_policy?: string | null
           created_at?: string
           end_time: string
           guests?: number
           id?: string
+          modification_deadline?: string | null
           pool_id: string
+          security_deposit_amount?: number | null
           special_requests?: string | null
           start_time: string
           status?: string | null
@@ -64,11 +185,14 @@ export type Database = {
         }
         Update: {
           booking_date?: string
+          cancellation_policy?: string | null
           created_at?: string
           end_time?: string
           guests?: number
           id?: string
+          modification_deadline?: string | null
           pool_id?: string
+          security_deposit_amount?: number | null
           special_requests?: string | null
           start_time?: string
           status?: string | null
@@ -89,6 +213,73 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_uploads: {
+        Row: {
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string
+          id: string
+          uploaded_at: string | null
+          verification_id: string | null
+        }
+        Insert: {
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type: string
+          id?: string
+          uploaded_at?: string | null
+          verification_id?: string | null
+        }
+        Update: {
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string
+          id?: string
+          uploaded_at?: string | null
+          verification_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_uploads_verification_id_fkey"
+            columns: ["verification_id"]
+            isOneToOne: false
+            referencedRelation: "identity_verifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      favorites: {
+        Row: {
+          created_at: string | null
+          id: string
+          pool_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          pool_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          pool_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
             referencedColumns: ["id"]
           },
         ]
@@ -168,6 +359,255 @@ export type Database = {
         }
         Relationships: []
       }
+      identity_verifications: {
+        Row: {
+          created_at: string | null
+          document_number: string | null
+          document_type: string | null
+          expires_at: string | null
+          id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string | null
+          user_id: string | null
+          verification_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          document_number?: string | null
+          document_type?: string | null
+          expires_at?: string | null
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string | null
+          user_id?: string | null
+          verification_type: string
+        }
+        Update: {
+          created_at?: string | null
+          document_number?: string | null
+          document_type?: string | null
+          expires_at?: string | null
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string | null
+          user_id?: string | null
+          verification_type?: string
+        }
+        Relationships: []
+      }
+      incidents: {
+        Row: {
+          booking_id: string | null
+          description: string
+          id: string
+          incident_type: string
+          reported_at: string | null
+          reporter_id: string | null
+          resolution_notes: string | null
+          resolved_at: string | null
+          severity: string | null
+          status: string | null
+        }
+        Insert: {
+          booking_id?: string | null
+          description: string
+          id?: string
+          incident_type: string
+          reported_at?: string | null
+          reporter_id?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          severity?: string | null
+          status?: string | null
+        }
+        Update: {
+          booking_id?: string | null
+          description?: string
+          id?: string
+          incident_type?: string
+          reported_at?: string | null
+          reporter_id?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          severity?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incidents_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      insurance_policies: {
+        Row: {
+          coverage_amount: number | null
+          coverage_type: string | null
+          created_at: string | null
+          end_date: string
+          id: string
+          is_active: boolean | null
+          policy_number: string
+          pool_id: string | null
+          provider: string
+          start_date: string
+        }
+        Insert: {
+          coverage_amount?: number | null
+          coverage_type?: string | null
+          created_at?: string | null
+          end_date: string
+          id?: string
+          is_active?: boolean | null
+          policy_number: string
+          pool_id?: string | null
+          provider: string
+          start_date: string
+        }
+        Update: {
+          coverage_amount?: number | null
+          coverage_type?: string | null
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          is_active?: boolean | null
+          policy_number?: string
+          pool_id?: string | null
+          provider?: string
+          start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insurance_policies_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          booking_id: string | null
+          conversation_id: string
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message_text: string
+          message_type: string | null
+          recipient_id: string | null
+          sender_id: string | null
+        }
+        Insert: {
+          booking_id?: string | null
+          conversation_id: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_text: string
+          message_type?: string | null
+          recipient_id?: string | null
+          sender_id?: string | null
+        }
+        Update: {
+          booking_id?: string | null
+          conversation_id?: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_text?: string
+          message_type?: string | null
+          recipient_id?: string | null
+          sender_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          action_url: string | null
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          title: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          title: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          title?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      payment_methods: {
+        Row: {
+          brand: string | null
+          created_at: string | null
+          id: string
+          is_default: boolean | null
+          last_four: string | null
+          stripe_payment_method_id: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          brand?: string | null
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          last_four?: string | null
+          stripe_payment_method_id: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          brand?: string | null
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          last_four?: string | null
+          stripe_payment_method_id?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       pool_amenities: {
         Row: {
           amenity_id: string
@@ -205,12 +645,16 @@ export type Database = {
         Row: {
           amenities: Json | null
           available_time_slots: Json | null
+          cancellation_policy: string | null
+          check_in_instructions: string | null
           created_at: string
           description: string | null
           extras: Json | null
           host_id: string
+          house_rules: string | null
           id: string
           images: string[] | null
+          instant_book: boolean | null
           is_active: boolean | null
           latitude: number | null
           location: string
@@ -219,18 +663,23 @@ export type Database = {
           price_per_hour: number
           rating: number | null
           reviews_count: number | null
+          safety_features: Json | null
           title: string
           updated_at: string
         }
         Insert: {
           amenities?: Json | null
           available_time_slots?: Json | null
+          cancellation_policy?: string | null
+          check_in_instructions?: string | null
           created_at?: string
           description?: string | null
           extras?: Json | null
           host_id: string
+          house_rules?: string | null
           id?: string
           images?: string[] | null
+          instant_book?: boolean | null
           is_active?: boolean | null
           latitude?: number | null
           location: string
@@ -239,18 +688,23 @@ export type Database = {
           price_per_hour: number
           rating?: number | null
           reviews_count?: number | null
+          safety_features?: Json | null
           title: string
           updated_at?: string
         }
         Update: {
           amenities?: Json | null
           available_time_slots?: Json | null
+          cancellation_policy?: string | null
+          check_in_instructions?: string | null
           created_at?: string
           description?: string | null
           extras?: Json | null
           host_id?: string
+          house_rules?: string | null
           id?: string
           images?: string[] | null
+          instant_book?: boolean | null
           is_active?: boolean | null
           latitude?: number | null
           location?: string
@@ -259,6 +713,7 @@ export type Database = {
           price_per_hour?: number
           rating?: number | null
           reviews_count?: number | null
+          safety_features?: Json | null
           title?: string
           updated_at?: string
         }
@@ -272,38 +727,144 @@ export type Database = {
           },
         ]
       }
+      pricing_rules: {
+        Row: {
+          created_at: string | null
+          day_of_week: number | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          modifier_type: string | null
+          pool_id: string | null
+          price_modifier: number
+          rule_type: string
+          start_date: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week?: number | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          modifier_type?: string | null
+          pool_id?: string | null
+          price_modifier: number
+          rule_type: string
+          start_date?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: number | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          modifier_type?: string | null
+          pool_id?: string | null
+          price_modifier?: number
+          rule_type?: string
+          start_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_rules_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           bio: string | null
           created_at: string
           email: string | null
+          emergency_contact: Json | null
           full_name: string | null
           id: string
+          is_guest_verified: boolean | null
+          is_host_verified: boolean | null
           phone: string | null
+          preferred_language: string | null
           user_type: string | null
+          verification_status: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
           email?: string | null
+          emergency_contact?: Json | null
           full_name?: string | null
           id: string
+          is_guest_verified?: boolean | null
+          is_host_verified?: boolean | null
           phone?: string | null
+          preferred_language?: string | null
           user_type?: string | null
+          verification_status?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
           email?: string | null
+          emergency_contact?: Json | null
           full_name?: string | null
           id?: string
+          is_guest_verified?: boolean | null
+          is_host_verified?: boolean | null
           phone?: string | null
+          preferred_language?: string | null
           user_type?: string | null
+          verification_status?: string | null
         }
         Relationships: []
+      }
+      refunds: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          created_at: string | null
+          currency: string | null
+          id: string
+          processed_at: string | null
+          reason: string | null
+          status: string | null
+          stripe_refund_id: string | null
+        }
+        Insert: {
+          amount: number
+          booking_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          processed_at?: string | null
+          reason?: string | null
+          status?: string | null
+          stripe_refund_id?: string | null
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          processed_at?: string | null
+          reason?: string | null
+          status?: string | null
+          stripe_refund_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refunds_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reviews: {
         Row: {
@@ -346,6 +907,77 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_searches: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          search_criteria: Json
+          search_name: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          search_criteria: Json
+          search_name: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          search_criteria?: Json
+          search_name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      security_deposits: {
+        Row: {
+          amount: number
+          authorized_at: string | null
+          booking_id: string | null
+          created_at: string | null
+          currency: string | null
+          id: string
+          released_at: string | null
+          status: string | null
+          stripe_payment_intent_id: string | null
+        }
+        Insert: {
+          amount: number
+          authorized_at?: string | null
+          booking_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          released_at?: string | null
+          status?: string | null
+          stripe_payment_intent_id?: string | null
+        }
+        Update: {
+          amount?: number
+          authorized_at?: string | null
+          booking_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          released_at?: string | null
+          status?: string | null
+          stripe_payment_intent_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "security_deposits_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
             referencedColumns: ["id"]
           },
         ]
