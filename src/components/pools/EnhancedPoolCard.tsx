@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
-import { Star, MapPin, Users, Heart, Compare, Wifi, Car, Waves } from 'lucide-react';
+import { Star, MapPin, Users, Heart, GitCompare, Wifi, Car, Waves } from 'lucide-react';
 
 interface Pool {
   id: string;
@@ -96,7 +96,7 @@ const EnhancedPoolCard = ({
                 onClick={handleCompareClick}
                 disabled={isInComparison}
               >
-                <Compare className="h-4 w-4" />
+                <GitCompare className="h-4 w-4" />
               </Button>
             )}
           </div>

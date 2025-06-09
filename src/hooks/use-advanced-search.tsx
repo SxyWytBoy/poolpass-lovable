@@ -19,6 +19,38 @@ export interface SearchFilters {
   sortOrder: 'asc' | 'desc';
 }
 
+interface PoolAmenity {
+  amenities: {
+    id: string;
+    name: string;
+    icon: string;
+  };
+}
+
+interface Pool {
+  id: string;
+  title: string;
+  location: string;
+  price_per_hour: number;
+  rating: number;
+  reviews_count: number;
+  images: string[];
+  max_guests?: number;
+  pool_amenities?: PoolAmenity[];
+  instant_book?: boolean;
+  is_active: boolean;
+  host_id: string;
+  description?: string;
+  created_at: string;
+}
+
+interface Amenity {
+  id: string;
+  name: string;
+  icon?: string;
+  description?: string;
+}
+
 export const useAdvancedSearch = () => {
   const [filters, setFilters] = useState<SearchFilters>({
     searchText: '',
@@ -36,7 +68,7 @@ export const useAdvancedSearch = () => {
     sortOrder: 'desc'
   });
 
-  const { data: amenities = [] } = useQuery({
+  const { data: amenities = [] } = useQuery<Amenity[]>({
     queryKey: ['amenities'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -49,7 +81,7 @@ export const useAdvancedSearch = () => {
     }
   });
 
-  const { data: pools = [], isLoading, refetch } = useQuery({
+  const { data: pools = [], isLoading, refetch } = useQuery<Pool[]>({
     queryKey: ['advanced-search', filters],
     queryFn: async () => {
       let query = supabase
@@ -86,11 +118,6 @@ export const useAdvancedSearch = () => {
         query = query.gte('max_guests', filters.maxGuests);
       }
 
-      // Apply pool type filter
-      if (filters.poolTypes.length > 0) {
-        query = query.in('pool_type', filters.poolTypes);
-      }
-
       // Apply sorting
       const sortColumn = filters.sortBy === 'price' ? 'price_per_hour' : 
                         filters.sortBy === 'newest' ? 'created_at' : 
@@ -104,7 +131,7 @@ export const useAdvancedSearch = () => {
       // Filter by amenities if selected
       if (filters.selectedAmenities.length > 0) {
         return data.filter(pool => {
-          const poolAmenityIds = pool.pool_amenities?.map((pa: any) => pa.amenities.id) || [];
+          const poolAmenityIds = pool.pool_amenities?.map((pa: PoolAmenity) => pa.amenities.id) || [];
           return filters.selectedAmenities.every(amenityId => 
             poolAmenityIds.includes(amenityId)
           );

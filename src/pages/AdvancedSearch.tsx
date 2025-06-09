@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAdvancedSearch } from '@/hooks/use-advanced-search';
 import { useToast } from '@/hooks/use-toast';
-import { Map, Grid, Compare, X } from 'lucide-react';
+import { Map, Grid, GitCompare, X } from 'lucide-react';
 
 const AdvancedSearch = () => {
   const navigate = useNavigate();
@@ -71,7 +71,7 @@ const AdvancedSearch = () => {
     navigate(`/pool/${poolId}`);
   };
 
-  // Convert pools to PoolGrid format
+  // Convert pools to PoolGrid format, handling missing pool_type gracefully
   const formattedPools = pools.map(pool => ({
     id: pool.id,
     name: pool.title,
@@ -80,7 +80,7 @@ const AdvancedSearch = () => {
     rating: pool.rating || 0,
     reviews: pool.reviews_count || 0,
     image: pool.images?.[0] || '',
-    indoorOutdoor: (pool.pool_type as 'indoor' | 'outdoor' | 'both') || 'outdoor',
+    indoorOutdoor: 'outdoor' as 'indoor' | 'outdoor' | 'both', // Default value since pool_type doesn't exist
     amenities: pool.pool_amenities?.map((pa: any) => pa.amenities?.name).filter(Boolean) || []
   }));
 
@@ -140,7 +140,7 @@ const AdvancedSearch = () => {
                       size="sm"
                       onClick={() => setShowComparison(true)}
                     >
-                      <Compare className="h-4 w-4 mr-1" />
+                      <GitCompare className="h-4 w-4 mr-1" />
                       Compare ({comparisonPools.length})
                     </Button>
                   )}
