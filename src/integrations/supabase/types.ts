@@ -513,44 +513,128 @@ export type Database = {
         }
         Relationships: []
       }
+      host_applications: {
+        Row: {
+          application_status: string | null
+          created_at: string
+          crm_integration_id: string | null
+          host_waitlist_id: string
+          id: string
+          onboarding_completed: boolean | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          application_status?: string | null
+          created_at?: string
+          crm_integration_id?: string | null
+          host_waitlist_id: string
+          id?: string
+          onboarding_completed?: boolean | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          application_status?: string | null
+          created_at?: string
+          crm_integration_id?: string | null
+          host_waitlist_id?: string
+          id?: string
+          onboarding_completed?: boolean | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "host_applications_crm_integration_id_fkey"
+            columns: ["crm_integration_id"]
+            isOneToOne: false
+            referencedRelation: "crm_integrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "host_applications_host_waitlist_id_fkey"
+            columns: ["host_waitlist_id"]
+            isOneToOne: true
+            referencedRelation: "host_waitlist"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "host_applications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       host_waitlist: {
         Row: {
           additional_info: string | null
+          approved_at: string | null
+          approved_by: string | null
           business_name: string
           contact_name: string
           created_at: string
+          crm_provider: string | null
           current_use: string[]
           email: string
           id: string
           interest_level: string[]
           location: string
+          notes: string | null
+          onboarding_completed_at: string | null
+          onboarding_status: string | null
           pool_type: string[]
+          rejection_reason: string | null
         }
         Insert: {
           additional_info?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           business_name: string
           contact_name: string
           created_at?: string
+          crm_provider?: string | null
           current_use: string[]
           email: string
           id?: string
           interest_level: string[]
           location: string
+          notes?: string | null
+          onboarding_completed_at?: string | null
+          onboarding_status?: string | null
           pool_type: string[]
+          rejection_reason?: string | null
         }
         Update: {
           additional_info?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           business_name?: string
           contact_name?: string
           created_at?: string
+          crm_provider?: string | null
           current_use?: string[]
           email?: string
           id?: string
           interest_level?: string[]
           location?: string
+          notes?: string | null
+          onboarding_completed_at?: string | null
+          onboarding_status?: string | null
           pool_type?: string[]
+          rejection_reason?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "host_waitlist_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       identity_verifications: {
         Row: {
@@ -767,6 +851,50 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      onboarding_steps: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          host_waitlist_id: string
+          id: string
+          is_completed: boolean | null
+          step_data: Json | null
+          step_name: string
+          step_order: number
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          host_waitlist_id: string
+          id?: string
+          is_completed?: boolean | null
+          step_data?: Json | null
+          step_name: string
+          step_order: number
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          host_waitlist_id?: string
+          id?: string
+          is_completed?: boolean | null
+          step_data?: Json | null
+          step_name?: string
+          step_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_steps_host_waitlist_id_fkey"
+            columns: ["host_waitlist_id"]
+            isOneToOne: false
+            referencedRelation: "host_waitlist"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payment_methods: {
         Row: {
@@ -1201,6 +1329,26 @@ export type Database = {
           last_sync_at: string
           sync_frequency_hours: number
         }[]
+      }
+      get_pending_host_applications: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          waitlist_id: string
+          business_name: string
+          contact_name: string
+          email: string
+          location: string
+          pool_type: string[]
+          current_use: string[]
+          interest_level: string[]
+          crm_provider: string
+          created_at: string
+          onboarding_status: string
+        }[]
+      }
+      initialize_host_onboarding: {
+        Args: { waitlist_id: string }
+        Returns: undefined
       }
       update_integration_last_sync: {
         Args: { integration_uuid: string }

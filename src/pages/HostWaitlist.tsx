@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -62,7 +62,9 @@ const HostWaitlist = () => {
           pool_type: data.poolType,
           current_use: data.currentUse,
           interest_level: data.interestLevel,
+          crm_provider: data.crmProvider || null,
           additional_info: data.additionalInfo || null,
+          onboarding_status: 'pending'
         });
 
       if (error) {
@@ -79,7 +81,7 @@ const HostWaitlist = () => {
         setIsSubmitted(true);
         toast({
           title: "Successfully registered interest!",
-          description: "We'll be in touch about how PoolPass can work with your venue.",
+          description: "We'll review your application and be in touch soon about how PoolPass can work with your venue.",
         });
       }
     } catch (error) {
@@ -132,7 +134,7 @@ const HostWaitlist = () => {
               <div className="text-6xl mb-4">🏨</div>
               <h2 className="text-2xl font-bold text-pool-dark mb-4">Thanks for registering interest!</h2>
               <p className="text-gray-600 mb-6">
-                We'll be in touch to chat about how PoolPass can work with your venue.
+                We'll review your application and be in touch soon about how PoolPass can work with your venue.
               </p>
               <Link to="/waitlist">
                 <Button className="bg-pool-primary hover:bg-pool-secondary">
