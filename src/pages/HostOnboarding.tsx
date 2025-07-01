@@ -8,9 +8,9 @@ import Footer from '@/components/Footer';
 
 const HostOnboarding: React.FC = () => {
   const { waitlistId } = useParams<{ waitlistId: string }>();
-  const { user, isLoading } = useAuth();
+  const { user, loading } = useAuth();
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
