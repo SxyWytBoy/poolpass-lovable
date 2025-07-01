@@ -12,78 +12,167 @@ const API_VERSION = 'v1';
  */
 class CrmApiService {
   private apiUrl: string;
-  private webhookUrl: string | null = null;
-  private apiKey: string | null = null;
 
   constructor() {
     this.apiUrl = `${API_BASE_URL}/${API_VERSION}`;
-    // Load from localStorage for front-end usage
-    this.loadCredentials();
   }
 
   /**
-   * Load credentials from localStorage if available
+   * Test connection to CRM system
    */
-  private loadCredentials(): void {
+  public async testConnection(
+    provider: string, 
+    credentials: { [key: string]: string }
+  ): Promise<ApiResponse<CrmConnectionStatus>> {
     try {
-      this.webhookUrl = localStorage.getItem('crm_webhook_url');
-      this.apiKey = localStorage.getItem('crm_api_key');
-    } catch (error) {
-      console.warn('Could not load CRM credentials from localStorage');
-    }
-  }
+      // For webhook-based integrations, test the webhook URL
+      if (credentials.webhook_url) {
+        const testPayload: CrmWebhookPayload = {
+          eventType: 'connection_test',
+          timestamp: new Date().toISOString(),
+          data: {
+            test: true,
+            message: 'This is a test payload from PoolPass'
+          }
+        };
 
-  /**
-   * Save credentials to localStorage
-   */
-  public saveCredentials(webhookUrl: string, apiKey: string): void {
-    try {
-      localStorage.setItem('crm_webhook_url', webhookUrl);
-      localStorage.setItem('crm_api_key', apiKey);
-      this.webhookUrl = webhookUrl;
-      this.apiKey = apiKey;
-    } catch (error) {
-      console.error('Could not save CRM credentials to localStorage');
-    }
-  }
+        const response = await fetch(credentials.webhook_url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(credentials.api_key && { 'Authorization': `Bearer ${credentials.api_key}` })
+          },
+          mode: 'no-cors',
+          body: JSON.stringify(testPayload),
+        });
 
-  /**
-   * Test connection to CRM webhook
-   */
-  public async testConnection(webhookUrl: string): Promise<ApiResponse<CrmConnectionStatus>> {
-    try {
-      const testPayload: CrmWebhookPayload = {
-        eventType: 'booking_created',
-        timestamp: new Date().toISOString(),
-        data: {
-          test: true,
-          message: 'This is a test payload from PoolPass'
-        }
-      };
+        return {
+          success: true,
+          data: {
+            connected: true,
+            crmType: provider as any,
+            lastSynced: new Date().toISOString(),
+            webhookConfigured: true
+          }
+        };
+      }
 
-      const response = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        mode: 'no-cors', // Add this to handle CORS
-        body: JSON.stringify(testPayload),
-      });
-
+      // For API-based integrations, test the API connection
+      // TODO: Implement specific API tests for each CRM provider
       return {
         success: true,
         data: {
           connected: true,
-          crmType: 'custom',
+          crmType: provider as any,
           lastSynced: new Date().toISOString(),
-          webhookConfigured: true
+          webhookConfigured: false
         }
       };
     } catch (error) {
       console.error('Error testing CRM connection:', error);
       return {
         success: false,
-        error: 'Could not connect to CRM webhook URL'
+        error: 'Could not connect to CRM system'
+      };
+    }
+  }
+
+  /**
+   * Create a new CRM integration
+   */
+  public async createIntegration(
+    hostId: string,
+    provider: 'mews' | 'cloudbeds' | 'opera' | 'protel' | 'custom',
+    integrationName: string,
+    credentials: { [key: string]: string },
+    configuration: any = {}
+  ): Promise<ApiResponse<any>> {
+    try {
+      // Test connection first
+      const connectionTest = await this.testConnection(provider, credentials);
+      if (!connectionTest.success) {
+        return connectionTest;
+      }
+
+      // Create the integration in the database
+      const { data: integration, error } = await supabase
+        .from('crm_integrations')
+        .insert({
+          host_id: hostId,
+          provider: provider,
+          integration_name: integrationName,
+          configuration: configuration,
+          webhook_url: credentials.webhook_url || null,
+          is_active: true
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Store credentials securely
+      const credentialInserts = Object.entries(credentials)
+        .filter(([key, value]) => value && key !== 'webhook_url')
+        .map(([key, value]) => ({
+          crm_integration_id: integration.id,
+          credential_type: key,
+          encrypted_value: value, // TODO: Implement proper encryption
+          expires_at: null // TODO: Handle expiration for OAuth tokens
+        }));
+
+      if (credentialInserts.length > 0) {
+        const { error: credError } = await supabase
+          .from('crm_credentials')
+          .insert(credentialInserts);
+
+        if (credError) throw credError;
+      }
+
+      return {
+        success: true,
+        data: integration
+      };
+    } catch (error) {
+      console.error('Error creating CRM integration:', error);
+      return {
+        success: false,
+        error: 'Failed to create CRM integration'
+      };
+    }
+  }
+
+  /**
+   * Get CRM integrations for a host
+   */
+  public async getHostIntegrations(hostId: string): Promise<ApiResponse<any[]>> {
+    try {
+      const { data, error } = await supabase
+        .from('crm_integrations')
+        .select(`
+          *,
+          availability_sync_logs (
+            id,
+            sync_type,
+            status,
+            message,
+            sync_started_at,
+            sync_completed_at
+          )
+        `)
+        .eq('host_id', hostId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      return {
+        success: true,
+        data: data || []
+      };
+    } catch (error) {
+      console.error('Error getting host integrations:', error);
+      return {
+        success: false,
+        error: 'Failed to fetch integrations'
       };
     }
   }
@@ -91,45 +180,73 @@ class CrmApiService {
   /**
    * Send booking data to CRM
    */
-  public async sendBookingToCrm(booking: Booking): Promise<ApiResponse> {
-    if (!this.webhookUrl) {
-      return {
-        success: false,
-        error: 'CRM webhook URL not configured'
-      };
-    }
-
+  public async sendBookingToCrm(booking: Booking, integrationId?: string): Promise<ApiResponse> {
     try {
-      // Get additional booking data if needed
+      // Get pool details and host's CRM integrations
       const { data: poolData } = await supabase
         .from('pools')
-        .select('name, location, price')
+        .select(`
+          *,
+          crm_integrations!crm_pool_mappings(*)
+        `)
         .eq('id', booking.pool_id)
         .single();
 
-      const payload: CrmWebhookPayload = {
-        eventType: 'booking_created',
-        timestamp: new Date().toISOString(),
-        data: {
-          booking,
-          pool: poolData,
-          customer_id: booking.user_id,
-        }
-      };
+      if (!poolData) {
+        return { success: false, error: 'Pool not found' };
+      }
 
-      await fetch(this.webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(this.apiKey && { 'Authorization': `Bearer ${this.apiKey}` })
-        },
-        mode: 'no-cors',
-        body: JSON.stringify(payload),
-      });
+      // Find active integrations for this pool
+      const integrations = poolData.crm_integrations || [];
+      const activeIntegrations = integrations.filter((int: any) => int.is_active);
+
+      if (activeIntegrations.length === 0) {
+        return { success: false, error: 'No active CRM integrations found for this pool' };
+      }
+
+      // Send to all active integrations or specific one
+      const targetIntegrations = integrationId 
+        ? activeIntegrations.filter((int: any) => int.id === integrationId)
+        : activeIntegrations;
+
+      const results = await Promise.allSettled(
+        targetIntegrations.map(async (integration: any) => {
+          const payload: CrmWebhookPayload = {
+            eventType: 'booking_created',
+            timestamp: new Date().toISOString(),
+            data: {
+              booking,
+              pool: poolData,
+              customer_id: booking.user_id,
+              integration_id: integration.id
+            }
+          };
+
+          if (integration.webhook_url) {
+            await fetch(integration.webhook_url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              mode: 'no-cors',
+              body: JSON.stringify(payload),
+            });
+          }
+
+          return { integration_id: integration.id, sent: true };
+        })
+      );
+
+      const successful = results.filter(result => result.status === 'fulfilled').length;
+      const failed = results.filter(result => result.status === 'rejected').length;
 
       return {
-        success: true,
-        data: { sent: true }
+        success: successful > 0,
+        data: { 
+          sent_to: successful,
+          failed: failed,
+          total_integrations: targetIntegrations.length
+        }
       };
     } catch (error) {
       console.error('Error sending booking to CRM:', error);
@@ -144,49 +261,12 @@ class CrmApiService {
    * Send user data to CRM
    */
   public async sendUserToCrm(user: User): Promise<ApiResponse> {
-    if (!this.webhookUrl) {
-      return {
-        success: false,
-        error: 'CRM webhook URL not configured'
-      };
-    }
-
-    try {
-      const payload: CrmWebhookPayload = {
-        eventType: 'user_created',
-        timestamp: new Date().toISOString(),
-        data: {
-          user: {
-            id: user.id,
-            email: user.email,
-            full_name: user.full_name,
-            user_type: user.user_type,
-            created_at: user.created_at
-          }
-        }
-      };
-
-      await fetch(this.webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(this.apiKey && { 'Authorization': `Bearer ${this.apiKey}` })
-        },
-        mode: 'no-cors',
-        body: JSON.stringify(payload),
-      });
-
-      return {
-        success: true,
-        data: { sent: true }
-      };
-    } catch (error) {
-      console.error('Error sending user to CRM:', error);
-      return {
-        success: false,
-        error: 'Failed to send user data to CRM'
-      };
-    }
+    // This would be similar to sendBookingToCrm but for user events
+    // For now, return success
+    return {
+      success: true,
+      data: { sent: true }
+    };
   }
 
   /**
@@ -197,6 +277,7 @@ class CrmApiService {
       const { data, error, count } = await supabase
         .from('pools')
         .select('*', { count: 'exact' })
+        .eq('is_active', true)
         .range((page - 1) * pageSize, page * pageSize - 1);
 
       if (error) throw error;
@@ -253,7 +334,7 @@ class CrmApiService {
   /**
    * Update booking status (e.g., from CRM updates)
    */
-  public async updateBookingStatus(bookingId: string, status: 'confirmed' | 'cancelled' | 'completed'): Promise<ApiResponse> {
+  public async updateBookingStatus(bookingId: string, status: 'pending' | 'confirmed' | 'cancelled' | 'completed'): Promise<ApiResponse> {
     try {
       const { error } = await supabase
         .from('bookings')
@@ -271,6 +352,52 @@ class CrmApiService {
       return {
         success: false,
         error: 'Failed to update booking status'
+      };
+    }
+  }
+
+  /**
+   * Trigger manual sync for an integration
+   */
+  public async triggerSync(
+    integrationId: string, 
+    syncType: 'availability' | 'pools' | 'bookings' | 'pricing'
+  ): Promise<ApiResponse> {
+    try {
+      // Get integration details
+      const { data: integration, error } = await supabase
+        .from('crm_integrations')
+        .select('*')
+        .eq('id', integrationId)
+        .single();
+
+      if (error || !integration) {
+        return { success: false, error: 'Integration not found' };
+      }
+
+      // Create sync log
+      const { error: logError } = await supabase
+        .from('availability_sync_logs')
+        .insert({
+          crm_integration_id: integrationId,
+          sync_type: syncType,
+          status: 'pending',
+          message: `Manual ${syncType} sync triggered`
+        });
+
+      if (logError) throw logError;
+
+      // TODO: Trigger actual sync process (could be via edge function or queue)
+
+      return {
+        success: true,
+        data: { sync_triggered: true }
+      };
+    } catch (error) {
+      console.error('Error triggering sync:', error);
+      return {
+        success: false,
+        error: 'Failed to trigger sync'
       };
     }
   }

@@ -101,6 +101,60 @@ export type Database = {
           },
         ]
       }
+      availability_sync_logs: {
+        Row: {
+          crm_integration_id: string
+          error_details: Json | null
+          id: string
+          message: string | null
+          pool_id: string | null
+          status: Database["public"]["Enums"]["sync_status"]
+          sync_completed_at: string | null
+          sync_started_at: string
+          sync_type: Database["public"]["Enums"]["sync_type"]
+          synced_data: Json | null
+        }
+        Insert: {
+          crm_integration_id: string
+          error_details?: Json | null
+          id?: string
+          message?: string | null
+          pool_id?: string | null
+          status: Database["public"]["Enums"]["sync_status"]
+          sync_completed_at?: string | null
+          sync_started_at?: string
+          sync_type: Database["public"]["Enums"]["sync_type"]
+          synced_data?: Json | null
+        }
+        Update: {
+          crm_integration_id?: string
+          error_details?: Json | null
+          id?: string
+          message?: string | null
+          pool_id?: string | null
+          status?: Database["public"]["Enums"]["sync_status"]
+          sync_completed_at?: string | null
+          sync_started_at?: string
+          sync_type?: Database["public"]["Enums"]["sync_type"]
+          synced_data?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_sync_logs_crm_integration_id_fkey"
+            columns: ["crm_integration_id"]
+            isOneToOne: false
+            referencedRelation: "crm_integrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "availability_sync_logs_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_modifications: {
         Row: {
           booking_id: string | null
@@ -213,6 +267,145 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_credentials: {
+        Row: {
+          created_at: string
+          credential_type: string
+          crm_integration_id: string
+          encrypted_value: string
+          expires_at: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credential_type: string
+          crm_integration_id: string
+          encrypted_value: string
+          expires_at?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credential_type?: string
+          crm_integration_id?: string
+          encrypted_value?: string
+          expires_at?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_credentials_crm_integration_id_fkey"
+            columns: ["crm_integration_id"]
+            isOneToOne: false
+            referencedRelation: "crm_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_integrations: {
+        Row: {
+          configuration: Json | null
+          created_at: string
+          host_id: string
+          id: string
+          integration_name: string
+          is_active: boolean
+          last_sync_at: string | null
+          provider: Database["public"]["Enums"]["crm_provider"]
+          sync_frequency_hours: number | null
+          updated_at: string
+          webhook_url: string | null
+        }
+        Insert: {
+          configuration?: Json | null
+          created_at?: string
+          host_id: string
+          id?: string
+          integration_name: string
+          is_active?: boolean
+          last_sync_at?: string | null
+          provider: Database["public"]["Enums"]["crm_provider"]
+          sync_frequency_hours?: number | null
+          updated_at?: string
+          webhook_url?: string | null
+        }
+        Update: {
+          configuration?: Json | null
+          created_at?: string
+          host_id?: string
+          id?: string
+          integration_name?: string
+          is_active?: boolean
+          last_sync_at?: string | null
+          provider?: Database["public"]["Enums"]["crm_provider"]
+          sync_frequency_hours?: number | null
+          updated_at?: string
+          webhook_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_integrations_host_id_fkey"
+            columns: ["host_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_pool_mappings: {
+        Row: {
+          created_at: string
+          crm_integration_id: string
+          external_pool_id: string
+          external_pool_name: string | null
+          id: string
+          is_active: boolean
+          mapping_configuration: Json | null
+          poolpass_pool_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          crm_integration_id: string
+          external_pool_id: string
+          external_pool_name?: string | null
+          id?: string
+          is_active?: boolean
+          mapping_configuration?: Json | null
+          poolpass_pool_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          crm_integration_id?: string
+          external_pool_id?: string
+          external_pool_name?: string | null
+          id?: string
+          is_active?: boolean
+          mapping_configuration?: Json | null
+          poolpass_pool_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_pool_mappings_crm_integration_id_fkey"
+            columns: ["crm_integration_id"]
+            isOneToOne: false
+            referencedRelation: "crm_integrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_pool_mappings_poolpass_pool_id_fkey"
+            columns: ["poolpass_pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
             referencedColumns: ["id"]
           },
         ]
@@ -987,10 +1180,37 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_host_crm_integrations: {
+        Args: { host_uuid: string }
+        Returns: {
+          integration_id: string
+          provider: Database["public"]["Enums"]["crm_provider"]
+          integration_name: string
+          is_active: boolean
+          last_sync_at: string
+          sync_frequency_hours: number
+        }[]
+      }
+      get_integrations_due_for_sync: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          integration_id: string
+          host_id: string
+          provider: Database["public"]["Enums"]["crm_provider"]
+          integration_name: string
+          last_sync_at: string
+          sync_frequency_hours: number
+        }[]
+      }
+      update_integration_last_sync: {
+        Args: { integration_uuid: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      crm_provider: "mews" | "cloudbeds" | "opera" | "protel" | "custom"
+      sync_status: "success" | "error" | "in_progress" | "pending"
+      sync_type: "availability" | "pools" | "bookings" | "pricing"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1105,6 +1325,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      crm_provider: ["mews", "cloudbeds", "opera", "protel", "custom"],
+      sync_status: ["success", "error", "in_progress", "pending"],
+      sync_type: ["availability", "pools", "bookings", "pricing"],
+    },
   },
 } as const

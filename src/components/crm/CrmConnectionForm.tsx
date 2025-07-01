@@ -2,83 +2,163 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
-import { IntegrationFactory } from '@/services/integrations/integration-factory';
-import { CrmCredentials } from '@/types/crm';
 import { useToast } from '@/hooks/use-toast';
+import { crmApi } from '@/services/crm-api';
+import { CrmCredentials } from '@/types/crm';
 
 interface CrmConnectionFormProps {
-  onConnectionSuccess?: (credentials: CrmCredentials) => void;
+  onConnectionSuccess: (credentials: CrmCredentials) => void;
 }
 
 const CrmConnectionForm: React.FC<CrmConnectionFormProps> = ({ onConnectionSuccess }) => {
   const { toast } = useToast();
   const [selectedProvider, setSelectedProvider] = useState<string>('');
-  const [credentials, setCredentials] = useState<Partial<CrmCredentials>>({});
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [integrationName, setIntegrationName] = useState<string>('');
+  const [credentials, setCredentials] = useState<{ [key: string]: string }>({});
+  const [isConnecting, setIsConnecting] = useState<boolean>(false);
+  const [connectionStatus, setConnectionStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
 
-  const supportedProviders = IntegrationFactory.getSupportedProviders();
+  // Mock current user ID - in real app this would come from auth context
+  const currentHostId = 'current-host-id';
+
+  const providerConfigs = {
+    mews: {
+      name: 'Mews',
+      fields: [
+        { key: 'api_key', label: 'API Key', type: 'password', required: true },
+        { key: 'base_url', label: 'API Base URL', type: 'url', required: true }
+      ]
+    },
+    cloudbeds: {
+      name: 'Cloudbeds',
+      fields: [
+        { key: 'api_key', label: 'API Key', type: 'password', required: true },
+        { key: 'property_id', label: 'Property ID', type: 'text', required: true }
+      ]
+    },
+    custom: {
+      name: 'Custom Integration',
+      fields: [
+        { key: 'webhook_url', label: 'Webhook URL', type: 'url', required: true },
+        { key: 'api_key', label: 'API Key (Optional)', type: 'password', required: false }
+      ]
+    }
+  };
 
   const handleProviderChange = (provider: string) => {
     setSelectedProvider(provider);
-    setCredentials({ provider: provider as any });
+    setCredentials({});
     setConnectionStatus('idle');
+    setIntegrationName(`${providerConfigs[provider as keyof typeof providerConfigs]?.name} Integration`);
   };
 
-  const handleCredentialChange = (field: string, value: string) => {
-    setCredentials(prev => ({ ...prev, [field]: value }));
+  const handleCredentialChange = (key: string, value: string) => {
+    setCredentials(prev => ({ ...prev, [key]: value }));
   };
 
   const testConnection = async () => {
-    if (!selectedProvider || !credentials.provider) {
+    if (!selectedProvider) return;
+
+    setConnectionStatus('testing');
+    
+    try {
+      const response = await crmApi.testConnection(selectedProvider, credentials);
+      
+      if (response.success) {
+        setConnectionStatus('success');
+        toast({
+          title: "Connection successful!",
+          description: "Your CRM system is responding correctly.",
+        });
+      } else {
+        setConnectionStatus('error');
+        toast({
+          title: "Connection failed",
+          description: response.error || "Could not connect to the CRM system",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      setConnectionStatus('error');
       toast({
-        title: "Missing provider",
-        description: "Please select a CRM provider first.",
+        title: "Connection error",
+        description: "An unexpected error occurred while testing the connection",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!selectedProvider || !integrationName.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please select a provider and enter an integration name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const config = providerConfigs[selectedProvider as keyof typeof providerConfigs];
+    const requiredFields = config.fields.filter(field => field.required);
+    const missingFields = requiredFields.filter(field => !credentials[field.key]?.trim());
+
+    if (missingFields.length > 0) {
+      toast({
+        title: "Missing required fields",
+        description: `Please fill in: ${missingFields.map(f => f.label).join(', ')}`,
         variant: "destructive",
       });
       return;
     }
 
     setIsConnecting(true);
-    setConnectionStatus('idle');
 
     try {
-      const integration = IntegrationFactory.createIntegration(
-        credentials as CrmCredentials,
-        'test-host-id' // This would be the actual host ID
+      const response = await crmApi.createIntegration(
+        currentHostId,
+        selectedProvider as any,
+        integrationName,
+        credentials,
+        { provider: selectedProvider }
       );
 
-      const isConnected = await integration.testConnection();
-      
-      if (isConnected) {
-        setConnectionStatus('success');
+      if (response.success) {
         toast({
-          title: "Connection successful!",
-          description: "Your CRM integration is working properly.",
+          title: "Integration created!",
+          description: "Your CRM integration has been set up successfully.",
         });
-        
-        if (onConnectionSuccess) {
-          onConnectionSuccess(credentials as CrmCredentials);
-        }
+
+        // Call success callback
+        onConnectionSuccess({
+          provider: selectedProvider as any,
+          api_key: credentials.api_key,
+          base_url: credentials.base_url,
+          client_id: credentials.client_id
+        });
+
+        // Reset form
+        setSelectedProvider('');
+        setIntegrationName('');
+        setCredentials({});
+        setConnectionStatus('idle');
       } else {
-        setConnectionStatus('error');
         toast({
-          title: "Connection failed",
-          description: "Please check your credentials and try again.",
+          title: "Integration failed",
+          description: response.error || "Failed to create CRM integration",
           variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Connection test failed:', error);
-      setConnectionStatus('error');
       toast({
-        title: "Connection error",
-        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        title: "Integration error",
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
     } finally {
@@ -86,119 +166,114 @@ const CrmConnectionForm: React.FC<CrmConnectionFormProps> = ({ onConnectionSucce
     }
   };
 
-  const renderCredentialFields = () => {
-    const provider = supportedProviders.find(p => p.id === selectedProvider);
-    if (!provider) return null;
+  const selectedConfig = selectedProvider ? providerConfigs[selectedProvider as keyof typeof providerConfigs] : null;
 
-    if (provider.authType === 'api_key') {
-      return (
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="api_key">API Key</Label>
-            <Input
-              id="api_key"
-              type="password"
-              placeholder="Enter your API key"
-              value={credentials.api_key || ''}
-              onChange={(e) => handleCredentialChange('api_key', e.target.value)}
-            />
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Connect CRM System</CardTitle>
+        <CardDescription>
+          Set up integration with your hotel management system
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Provider Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="provider">CRM Provider</Label>
+            <Select value={selectedProvider} onValueChange={handleProviderChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select your CRM system" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mews">Mews</SelectItem>
+                <SelectItem value="cloudbeds">Cloudbeds</SelectItem>
+                <SelectItem value="custom">Custom Webhook</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          {provider.id === 'mews' && (
-            <div>
-              <Label htmlFor="oauth_token">Access Token</Label>
+
+          {/* Integration Name */}
+          {selectedProvider && (
+            <div className="space-y-2">
+              <Label htmlFor="integration_name">Integration Name</Label>
               <Input
-                id="oauth_token"
-                type="password"
-                placeholder="Enter your access token"
-                value={credentials.oauth_token || ''}
-                onChange={(e) => handleCredentialChange('oauth_token', e.target.value)}
+                id="integration_name"
+                value={integrationName}
+                onChange={(e) => setIntegrationName(e.target.value)}
+                placeholder="e.g., Main Hotel Integration"
               />
             </div>
           )}
-        </div>
-      );
-    }
 
-    if (provider.authType === 'oauth') {
-      return (
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="oauth_token">OAuth Token</Label>
-            <Input
-              id="oauth_token"
-              type="password"
-              placeholder="Enter your OAuth token"
-              value={credentials.oauth_token || ''}
-              onChange={(e) => handleCredentialChange('oauth_token', e.target.value)}
-            />
-          </div>
-          <div>
-            <Label htmlFor="refresh_token">Refresh Token (Optional)</Label>
-            <Input
-              id="refresh_token"
-              type="password"
-              placeholder="Enter your refresh token"
-              value={credentials.refresh_token || ''}
-              onChange={(e) => handleCredentialChange('refresh_token', e.target.value)}
-            />
-          </div>
-        </div>
-      );
-    }
+          {/* Dynamic credential fields */}
+          {selectedConfig && selectedConfig.fields.map((field) => (
+            <div key={field.key} className="space-y-2">
+              <Label htmlFor={field.key}>
+                {field.label}
+                {field.required && <span className="text-red-500 ml-1">*</span>}
+              </Label>
+              <Input
+                id={field.key}
+                type={field.type}
+                value={credentials[field.key] || ''}
+                onChange={(e) => handleCredentialChange(field.key, e.target.value)}
+                placeholder={`Enter your ${field.label.toLowerCase()}`}
+              />
+            </div>
+          ))}
 
-    return null;
-  };
+          {/* Connection Status */}
+          {selectedProvider && Object.keys(credentials).length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={testConnection}
+                  disabled={connectionStatus === 'testing'}
+                >
+                  {connectionStatus === 'testing' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Test Connection
+                </Button>
+                
+                {connectionStatus === 'success' && (
+                  <div className="flex items-center gap-1 text-green-600">
+                    <CheckCircle className="h-4 w-4" />
+                    <span className="text-sm">Connected</span>
+                  </div>
+                )}
+                
+                {connectionStatus === 'error' && (
+                  <div className="flex items-center gap-1 text-red-600">
+                    <AlertCircle className="h-4 w-4" />
+                    <span className="text-sm">Failed</span>
+                  </div>
+                )}
+              </div>
 
-  return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Connect Your CRM System</CardTitle>
-        <CardDescription>
-          Integrate your hotel management system to sync pool availability and bookings
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div>
-          <Label htmlFor="provider">CRM Provider</Label>
-          <Select value={selectedProvider} onValueChange={handleProviderChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select your CRM provider" />
-            </SelectTrigger>
-            <SelectContent>
-              {supportedProviders.map((provider) => (
-                <SelectItem key={provider.id} value={provider.id}>
-                  {provider.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+              {connectionStatus === 'success' && (
+                <Alert>
+                  <CheckCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Connection test successful! You can now save this integration.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+          )}
 
-        {selectedProvider && renderCredentialFields()}
-
-        {connectionStatus !== 'idle' && (
-          <Alert variant={connectionStatus === 'success' ? 'default' : 'destructive'}>
-            {connectionStatus === 'success' ? (
-              <CheckCircle className="h-4 w-4" />
-            ) : (
-              <AlertCircle className="h-4 w-4" />
-            )}
-            <AlertDescription>
-              {connectionStatus === 'success'
-                ? 'Successfully connected to your CRM system!'
-                : 'Failed to connect. Please check your credentials.'}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        <Button 
-          onClick={testConnection}
-          disabled={!selectedProvider || isConnecting}
-          className="w-full"
-        >
-          {isConnecting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isConnecting ? 'Testing Connection...' : 'Test Connection'}
-        </Button>
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            disabled={isConnecting || !selectedProvider || connectionStatus !== 'success'}
+            className="w-full"
+          >
+            {isConnecting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isConnecting ? "Creating Integration..." : "Create Integration"}
+          </Button>
+        </form>
       </CardContent>
     </Card>
   );
