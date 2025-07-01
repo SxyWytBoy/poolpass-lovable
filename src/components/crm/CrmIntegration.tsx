@@ -40,7 +40,12 @@ const CrmIntegration = () => {
     setIsLoading(true);
     
     try {
-      const response = await crmApi.testConnection(webhookUrl);
+      const credentials = {
+        webhook_url: webhookUrl,
+        ...(apiKey && { api_key: apiKey })
+      };
+      
+      const response = await crmApi.testConnection('custom', credentials);
       
       if (response.success && response.data) {
         setConnectionStatus(response.data);
@@ -50,7 +55,10 @@ const CrmIntegration = () => {
         });
         
         // Save credentials if test was successful
-        crmApi.saveCredentials(webhookUrl, apiKey);
+        localStorage.setItem('crm_webhook_url', webhookUrl);
+        if (apiKey) {
+          localStorage.setItem('crm_api_key', apiKey);
+        }
       } else {
         toast({
           title: "Connection failed",

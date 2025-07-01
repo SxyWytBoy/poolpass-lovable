@@ -27,13 +27,11 @@ class CrmApiService {
     try {
       // For webhook-based integrations, test the webhook URL
       if (credentials.webhook_url) {
-        const testPayload: CrmWebhookPayload = {
-          eventType: 'connection_test',
+        // Create a simple test payload for webhook validation
+        const testPayload = {
+          test: true,
           timestamp: new Date().toISOString(),
-          data: {
-            test: true,
-            message: 'This is a test payload from PoolPass'
-          }
+          message: 'Connection test from PoolPass'
         };
 
         const response = await fetch(credentials.webhook_url, {

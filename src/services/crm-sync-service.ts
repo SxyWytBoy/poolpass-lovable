@@ -119,7 +119,7 @@ export class CrmSyncService {
               external_id: 'room_001',
               title: 'Premium Pool Suite',
               description: 'Luxury pool with panoramic views',
-              location: integration.configuration?.location || 'Unknown Location',
+              location: this.getConfigurationValue(integration.configuration, 'location', 'Unknown Location'),
               amenities: ['WiFi', 'Towels', 'Changing Room'],
               max_guests: 8
             }
@@ -169,6 +169,24 @@ export class CrmSyncService {
       console.error('Bookings sync failed:', error);
       throw error;
     }
+  }
+
+  private static getConfigurationValue(configuration: any, key: string, defaultValue: string): string {
+    if (!configuration) return defaultValue;
+    
+    try {
+      // Handle different types of configuration data
+      if (typeof configuration === 'string') {
+        const parsed = JSON.parse(configuration);
+        return parsed[key] || defaultValue;
+      } else if (typeof configuration === 'object' && configuration !== null) {
+        return configuration[key] || defaultValue;
+      }
+    } catch (error) {
+      console.warn('Failed to parse configuration:', error);
+    }
+    
+    return defaultValue;
   }
 
   private static async createSyncLog(
