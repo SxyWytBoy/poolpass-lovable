@@ -2,20 +2,30 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CrmIntegration from '@/components/crm/CrmIntegration';
 import CrmConnectionForm from '@/components/crm/CrmConnectionForm';
 import SyncDashboard from '@/components/crm/SyncDashboard';
-import { CrmCredentials } from '@/types/crm';
+import PoolImportManager from '@/components/crm/PoolImportManager';
+import { useCrmIntegrations } from '@/hooks/use-crm-integrations';
 
 const CrmSettings = () => {
-  const [connectedCrm, setConnectedCrm] = useState<CrmCredentials | null>(null);
-  const hostId = "current-host-id"; // This would come from auth context
+  const { user } = useAuth();
+  const [selectedIntegration, setSelectedIntegration] = useState<string | null>(null);
+  const hostId = user?.id || 'current-host-id';
+  
+  const { integrations, activeIntegrations, refetch } = useCrmIntegrations(hostId);
 
-  const handleConnectionSuccess = (credentials: CrmCredentials) => {
-    setConnectedCrm(credentials);
-    // Save to database here
+  const handleConnectionSuccess = (integration: any) => {
+    setSelectedIntegration(integration.id);
+    refetch();
+  };
+
+  const handlePoolCreated = (pool: any) => {
+    console.log('Pool created:', pool);
+    // Could trigger a notification or navigation here
   };
 
   return (
@@ -32,15 +42,19 @@ const CrmSettings = () => {
           </div>
 
           <Tabs defaultValue="connection" className="space-y-6">
-            <TabsList className="grid grid-cols-3 w-full max-w-md">
+            <TabsList className="grid grid-cols-4 w-full max-w-lg">
               <TabsTrigger value="connection">Connection</TabsTrigger>
+              <TabsTrigger value="import">Import Pools</TabsTrigger>
               <TabsTrigger value="sync">Sync Dashboard</TabsTrigger>
               <TabsTrigger value="webhook">Webhook</TabsTrigger>
             </TabsList>
 
             <TabsContent value="connection" className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <CrmConnectionForm onConnectionSuccess={handleConnectionSuccess} />
+                <CrmConnectionForm 
+                  onConnectionSuccess={handleConnectionSuccess}
+                  hostId={hostId}
+                />
                 
                 <Card>
                   <CardHeader>
@@ -76,10 +90,76 @@ const CrmSettings = () => {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Active Integrations */}
+              {activeIntegrations.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Active Integrations</CardTitle>
+                    <CardDescription>
+                      Your connected CRM systems
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {activeIntegrations.map((integration: any) => (
+                        <div 
+                          key={integration.id} 
+                          className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                            selectedIntegration === integration.id 
+                              ? 'border-blue-500 bg-blue-50' 
+                              : 'hover:border-gray-300'
+                          }`}
+                          onClick={() => setSelectedIntegration(integration.id)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h3 className="font-medium">{integration.integration_name}</h3>
+                              <p className="text-sm text-gray-600 capitalize">
+                                {integration.provider} Integration
+                              </p>
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              Last sync: {integration.last_sync_at 
+                                ? new Date(integration.last_sync_at).toLocaleDateString()
+                                : 'Never'
+                              }
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            <TabsContent value="import" className="space-y-6">
+              {selectedIntegration ? (
+                <PoolImportManager 
+                  integrationId={selectedIntegration}
+                  hostId={hostId}
+                  onPoolCreated={handlePoolCreated}
+                />
+              ) : activeIntegrations.length > 0 ? (
+                <Card>
+                  <CardContent className="flex flex-col items-center justify-center py-12">
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Select an Integration</h3>
+                    <p className="text-gray-600 mb-4">Choose a CRM integration to import pools from</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardContent className="flex flex-col items-center justify-center py-12">
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No CRM Connected</h3>
+                    <p className="text-gray-600 mb-4">Connect your CRM system first to import pools</p>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
 
             <TabsContent value="sync" className="space-y-6">
-              {connectedCrm ? (
+              {activeIntegrations.length > 0 ? (
                 <SyncDashboard hostId={hostId} />
               ) : (
                 <Card>

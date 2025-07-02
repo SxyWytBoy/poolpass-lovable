@@ -8,14 +8,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
-import { crmApi } from '@/services/crm-api';
+import { CrmIntegrationService } from '@/services/crm-integration-service';
 import { CrmCredentials } from '@/types/crm';
 
 interface CrmConnectionFormProps {
-  onConnectionSuccess: (credentials: CrmCredentials) => void;
+  onConnectionSuccess: (integration: any) => void;
+  hostId: string;
 }
 
-const CrmConnectionForm: React.FC<CrmConnectionFormProps> = ({ onConnectionSuccess }) => {
+const CrmConnectionForm: React.FC<CrmConnectionFormProps> = ({ onConnectionSuccess, hostId }) => {
   const { toast } = useToast();
   const [selectedProvider, setSelectedProvider] = useState<string>('');
   const [integrationName, setIntegrationName] = useState<string>('');
@@ -23,28 +24,26 @@ const CrmConnectionForm: React.FC<CrmConnectionFormProps> = ({ onConnectionSucce
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
 
-  // Mock current user ID - in real app this would come from auth context
-  const currentHostId = 'current-host-id';
-
   const providerConfigs = {
     mews: {
       name: 'Mews',
       fields: [
-        { key: 'api_key', label: 'API Key', type: 'password', required: true },
-        { key: 'base_url', label: 'API Base URL', type: 'url', required: true }
+        { key: 'api_key', label: 'Client Token', type: 'password', required: true },
+        { key: 'oauth_token', label: 'Access Token', type: 'password', required: true },
+        { key: 'base_url', label: 'API Base URL', type: 'url', required: false, default: 'https://api.mews.com' }
       ]
     },
     cloudbeds: {
       name: 'Cloudbeds',
       fields: [
         { key: 'api_key', label: 'API Key', type: 'password', required: true },
-        { key: 'property_id', label: 'Property ID', type: 'text', required: true }
+        { key: 'base_url', label: 'Property ID', type: 'text', required: true }
       ]
     },
     custom: {
       name: 'Custom Integration',
       fields: [
-        { key: 'webhook_url', label: 'Webhook URL', type: 'url', required: true },
+        { key: 'base_url', label: 'Webhook URL', type: 'url', required: true },
         { key: 'api_key', label: 'API Key (Optional)', type: 'password', required: false }
       ]
     }
@@ -54,7 +53,20 @@ const CrmConnectionForm: React.FC<CrmConnectionFormProps> = ({ onConnectionSucce
     setSelectedProvider(provider);
     setCredentials({});
     setConnectionStatus('idle');
-    setIntegrationName(`${providerConfigs[provider as keyof typeof providerConfigs]?.name} Integration`);
+    
+    const config = providerConfigs[provider as keyof typeof providerConfigs];
+    if (config) {
+      setIntegrationName(`${config.name} Integration`);
+      
+      // Set default values
+      const defaultCredentials: { [key: string]: string } = {};
+      config.fields.forEach(field => {
+        if (field.default) {
+          defaultCredentials[field.key] = field.default;
+        }
+      });
+      setCredentials(defaultCredentials);
+    }
   };
 
   const handleCredentialChange = (key: string, value: string) => {
@@ -67,7 +79,17 @@ const CrmConnectionForm: React.FC<CrmConnectionFormProps> = ({ onConnectionSucce
     setConnectionStatus('testing');
     
     try {
-      const response = await crmApi.testConnection(selectedProvider, credentials);
+      const crmCredentials: CrmCredentials = {
+        provider: selectedProvider as any,
+        api_key: credentials.api_key,
+        oauth_token: credentials.oauth_token,
+        base_url: credentials.base_url
+      };
+
+      const response = await CrmIntegrationService.testConnection(
+        selectedProvider as any, 
+        crmCredentials
+      );
       
       if (response.success) {
         setConnectionStatus('success');
@@ -121,44 +143,38 @@ const CrmConnectionForm: React.FC<CrmConnectionFormProps> = ({ onConnectionSucce
     setIsConnecting(true);
 
     try {
-      const response = await crmApi.createIntegration(
-        currentHostId,
+      const crmCredentials: CrmCredentials = {
+        provider: selectedProvider as any,
+        api_key: credentials.api_key,
+        oauth_token: credentials.oauth_token,
+        base_url: credentials.base_url
+      };
+
+      const integration = await CrmIntegrationService.createIntegration(
+        hostId,
         selectedProvider as any,
         integrationName,
-        credentials,
+        crmCredentials,
         { provider: selectedProvider }
       );
 
-      if (response.success) {
-        toast({
-          title: "Integration created!",
-          description: "Your CRM integration has been set up successfully.",
-        });
+      toast({
+        title: "Integration created!",
+        description: "Your CRM integration has been set up successfully.",
+      });
 
-        // Call success callback
-        onConnectionSuccess({
-          provider: selectedProvider as any,
-          api_key: credentials.api_key,
-          base_url: credentials.base_url,
-          client_id: credentials.client_id
-        });
+      // Call success callback
+      onConnectionSuccess(integration);
 
-        // Reset form
-        setSelectedProvider('');
-        setIntegrationName('');
-        setCredentials({});
-        setConnectionStatus('idle');
-      } else {
-        toast({
-          title: "Integration failed",
-          description: response.error || "Failed to create CRM integration",
-          variant: "destructive",
-        });
-      }
+      // Reset form
+      setSelectedProvider('');
+      setIntegrationName('');
+      setCredentials({});
+      setConnectionStatus('idle');
     } catch (error) {
       toast({
-        title: "Integration error",
-        description: "An unexpected error occurred",
+        title: "Integration failed",
+        description: error instanceof Error ? error.message : "Failed to create CRM integration",
         variant: "destructive",
       });
     } finally {
