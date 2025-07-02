@@ -191,24 +191,29 @@ export class CrmIntegrationService {
         images: poolDetails.images || []
       }];
 
-      // Create pool mappings for imported pools
+      // Create pool mappings for imported pools - without poolpass_pool_id initially
       const mappingInserts = importedPools.map(pool => ({
         crm_integration_id: integrationId,
         external_pool_id: pool.external_id,
         external_pool_name: pool.title,
+        poolpass_pool_id: null, // Will be set when pool is created
         mapping_configuration: {
           imported_at: new Date().toISOString(),
           original_data: pool
         }
       }));
 
-      const { error: mappingError } = await supabase
-        .from('crm_pool_mappings')
-        .insert(mappingInserts);
+      // Insert mappings with upsert to handle duplicates
+      for (const mapping of mappingInserts) {
+        const { error: mappingError } = await supabase
+          .from('crm_pool_mappings')
+          .upsert(mapping, {
+            onConflict: 'crm_integration_id,external_pool_id'
+          });
 
-      if (mappingError) {
-        console.error('Error creating pool mappings:', mappingError);
-        // Don't throw error, just log it
+        if (mappingError) {
+          console.error('Error creating pool mapping:', mappingError);
+        }
       }
 
       return importedPools;

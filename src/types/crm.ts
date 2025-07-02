@@ -26,7 +26,7 @@ export interface PoolDetails {
 }
 
 export interface CrmCredentials {
-  provider: 'mews' | 'cloudbeds' | 'custom';
+  provider: 'mews' | 'cloudbeds' | 'opera' | 'protel' | 'custom';
   api_key?: string;
   oauth_token?: string;
   refresh_token?: string;

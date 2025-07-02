@@ -16,6 +16,8 @@ export class IntegrationFactory {
         return new MewsIntegration(credentials, hostId);
       case 'cloudbeds':
         return new CloudbedsIntegration(credentials, hostId);
+      case 'opera':
+      case 'protel':
       case 'custom':
         // For custom integrations, we'll use a basic webhook approach
         return new CloudbedsIntegration(credentials, hostId); // Fallback for now
@@ -45,9 +47,11 @@ export class IntegrationFactory {
         }
         break;
         
+      case 'opera':
+      case 'protel':
       case 'custom':
         if (!credentials.base_url) {
-          throw new Error('Webhook URL is required for custom integrations');
+          throw new Error('Base URL is required for this integration type');
         }
         break;
         
