@@ -183,7 +183,7 @@ export class CrmIntegrationService {
       const importedPools: ImportedPool[] = [{
         external_id: poolDetails.external_id,
         title: poolDetails.title,
-        description: poolDetails.description,
+        description: poolDetails.description || '',
         location: poolDetails.location,
         amenities: poolDetails.amenities,
         price_per_day: poolDetails.price_per_day,
@@ -196,11 +196,11 @@ export class CrmIntegrationService {
         crm_integration_id: integrationId,
         external_pool_id: pool.external_id,
         external_pool_name: pool.title,
-        poolpass_pool_id: null, // Will be set when pool is created
+        poolpass_pool_id: null as string | null, // Explicitly typed as nullable
         mapping_configuration: {
           imported_at: new Date().toISOString(),
-          original_data: pool
-        }
+          original_data: pool as any // Cast to any to satisfy Json type
+        } as any
       }));
 
       // Insert mappings with upsert to handle duplicates
