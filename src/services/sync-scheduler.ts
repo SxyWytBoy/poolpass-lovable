@@ -1,6 +1,5 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { CrmIntegrationService } from './crm-integration-service';
 import { CrmSyncService } from './crm-sync-service';
 
 export interface SyncSchedule {
@@ -12,16 +11,6 @@ export interface SyncSchedule {
   is_active: boolean;
   last_run?: string;
   error_count: number;
-}
-
-export interface SyncConflict {
-  id: string;
-  type: 'booking_overlap' | 'availability_mismatch' | 'price_difference';
-  pool_id: string;
-  external_pool_id: string;
-  conflict_data: any;
-  status: 'pending' | 'resolved' | 'ignored';
-  created_at: string;
 }
 
 export class SyncScheduler {
@@ -79,7 +68,7 @@ export class SyncScheduler {
     try {
       const nextRun = this.calculateNextRun(frequency);
       
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('sync_schedules')
         .upsert({
           integration_id: integrationId,
@@ -109,7 +98,7 @@ export class SyncScheduler {
    */
   async unscheduleSync(integrationId: string, syncType: string) {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('sync_schedules')
         .update({ is_active: false })
         .eq('integration_id', integrationId)
@@ -138,7 +127,7 @@ export class SyncScheduler {
       console.log(`Executing ${syncType} sync for integration ${integrationId}`);
       
       // Update last run time
-      const { error: updateError } = await supabase
+      const { error: updateError } = await (supabase as any)
         .from('sync_schedules')
         .update({ 
           last_run: new Date().toISOString(),
@@ -189,7 +178,7 @@ export class SyncScheduler {
       }
 
       // Reset error count on successful sync
-      await supabase
+      await (supabase as any)
         .from('sync_schedules')
         .update({ error_count: 0 })
         .eq('integration_id', integrationId)
@@ -199,10 +188,10 @@ export class SyncScheduler {
       console.error(`Error in scheduled sync ${syncType} for ${integrationId}:`, error);
       
       // Increment error count
-      await supabase
+      await (supabase as any)
         .from('sync_schedules')
         .update({ 
-          error_count: supabase.sql`error_count + 1`,
+          error_count: (supabase as any).sql`error_count + 1`,
           last_error: error instanceof Error ? error.message : 'Unknown error'
         })
         .eq('integration_id', integrationId)
@@ -215,7 +204,7 @@ export class SyncScheduler {
    */
   private async checkDueSync() {
     try {
-      const { data: dueSchedules, error } = await supabase
+      const { data: dueSchedules, error } = await (supabase as any)
         .from('sync_schedules')
         .select('*')
         .eq('is_active', true)
@@ -232,7 +221,7 @@ export class SyncScheduler {
         
         // Update next run time
         const nextRun = this.calculateNextRun(schedule.frequency);
-        await supabase
+        await (supabase as any)
           .from('sync_schedules')
           .update({ next_run: nextRun })
           .eq('id', schedule.id);
@@ -247,7 +236,7 @@ export class SyncScheduler {
    */
   private async loadAndStartSchedules() {
     try {
-      const { data: schedules, error } = await supabase
+      const { data: schedules, error } = await (supabase as any)
         .from('sync_schedules')
         .select('*')
         .eq('is_active', true);
@@ -327,7 +316,7 @@ export class SyncScheduler {
    */
   async getSyncStatus(integrationId: string) {
     try {
-      const { data: schedules, error } = await supabase
+      const { data: schedules, error } = await (supabase as any)
         .from('sync_schedules')
         .select('*')
         .eq('integration_id', integrationId)

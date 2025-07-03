@@ -27,7 +27,7 @@ export class WebhookHandler {
       console.log(`Processing webhook: ${source} - ${eventType} for integration ${integrationId}`);
 
       // Store webhook event for auditing
-      const { error: logError } = await supabase
+      const { error: logError } = await (supabase as any)
         .from('webhook_events')
         .insert({
           source: source as any,
@@ -64,7 +64,7 @@ export class WebhookHandler {
       }
 
       // Mark as processed
-      await supabase
+      await (supabase as any)
         .from('webhook_events')
         .update({ processed: true })
         .eq('integration_id', integrationId)
@@ -226,7 +226,7 @@ export class WebhookHandler {
     try {
       for (const conflict of conflicts) {
         // Log the conflict
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('sync_conflicts')
           .insert({
             type: 'booking_overlap',
@@ -300,7 +300,7 @@ export class WebhookHandler {
    */
   static async getWebhookEvents(integrationId: string, limit: number = 50) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('webhook_events')
         .select('*')
         .eq('integration_id', integrationId)

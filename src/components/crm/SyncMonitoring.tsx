@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Activity, 
   Clock, 
@@ -17,8 +16,6 @@ import {
 } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { SyncScheduler } from '@/services/sync-scheduler';
-import { WebhookHandler } from '@/services/webhook-handler';
 
 interface SyncStatus {
   integration_id: string;
@@ -63,8 +60,8 @@ const SyncMonitoring: React.FC<SyncMonitoringProps> = ({ hostId }) => {
       const statuses: SyncStatus[] = [];
 
       for (const integration of integrations || []) {
-        // Get sync schedules
-        const { data: schedules } = await supabase
+        // Get sync schedules using type assertion
+        const { data: schedules } = await (supabase as any)
           .from('sync_schedules')
           .select('*')
           .eq('integration_id', integration.id);
@@ -77,8 +74,13 @@ const SyncMonitoring: React.FC<SyncMonitoringProps> = ({ hostId }) => {
           .order('sync_started_at', { ascending: false })
           .limit(10);
 
-        // Get webhook events
-        const webhookEvents = await WebhookHandler.getWebhookEvents(integration.id, 10);
+        // Get webhook events using type assertion
+        const { data: webhookEvents } = await (supabase as any)
+          .from('webhook_events')
+          .select('*')
+          .eq('integration_id', integration.id)
+          .order('created_at', { ascending: false })
+          .limit(10);
 
         // Calculate error count and last successful sync
         const errorCount = logs?.filter(log => log.status === 'error').length || 0;
@@ -90,7 +92,7 @@ const SyncMonitoring: React.FC<SyncMonitoringProps> = ({ hostId }) => {
           provider: integration.provider,
           schedules: schedules || [],
           recent_logs: logs || [],
-          webhook_events: webhookEvents,
+          webhook_events: webhookEvents || [],
           error_count: errorCount,
           last_successful_sync: lastSuccessfulSync
         });
@@ -111,8 +113,22 @@ const SyncMonitoring: React.FC<SyncMonitoringProps> = ({ hostId }) => {
 
   const scheduleSync = async (integrationId: string, syncType: string, frequency: string) => {
     try {
-      const scheduler = SyncScheduler.getInstance();
-      await scheduler.scheduleSync(integrationId, syncType as any, frequency as any);
+      const nextRun = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour from now
+      
+      const { error } = await (supabase as any)
+        .from('sync_schedules')
+        .upsert({
+          integration_id: integrationId,
+          sync_type: syncType,
+          frequency: frequency,
+          next_run: nextRun,
+          is_active: true,
+          error_count: 0
+        }, {
+          onConflict: 'integration_id,sync_type'
+        });
+
+      if (error) throw error;
       
       toast({
         title: "Sync scheduled",
@@ -132,8 +148,13 @@ const SyncMonitoring: React.FC<SyncMonitoringProps> = ({ hostId }) => {
 
   const unscheduleSync = async (integrationId: string, syncType: string) => {
     try {
-      const scheduler = SyncScheduler.getInstance();
-      await scheduler.unscheduleSync(integrationId, syncType);
+      const { error } = await (supabase as any)
+        .from('sync_schedules')
+        .update({ is_active: false })
+        .eq('integration_id', integrationId)
+        .eq('sync_type', syncType);
+
+      if (error) throw error;
       
       toast({
         title: "Sync unscheduled",

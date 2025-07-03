@@ -1303,6 +1303,138 @@ export type Database = {
           },
         ]
       }
+      sync_conflicts: {
+        Row: {
+          conflict_data: Json
+          created_at: string
+          external_pool_id: string
+          id: string
+          pool_id: string
+          resolved_at: string | null
+          status: string
+          type: string
+        }
+        Insert: {
+          conflict_data?: Json
+          created_at?: string
+          external_pool_id: string
+          id?: string
+          pool_id: string
+          resolved_at?: string | null
+          status?: string
+          type: string
+        }
+        Update: {
+          conflict_data?: Json
+          created_at?: string
+          external_pool_id?: string
+          id?: string
+          pool_id?: string
+          resolved_at?: string | null
+          status?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sync_conflicts_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sync_schedules: {
+        Row: {
+          created_at: string
+          error_count: number
+          frequency: string
+          id: string
+          integration_id: string
+          is_active: boolean
+          last_error: string | null
+          last_run: string | null
+          next_run: string
+          sync_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          error_count?: number
+          frequency: string
+          id?: string
+          integration_id: string
+          is_active?: boolean
+          last_error?: string | null
+          last_run?: string | null
+          next_run: string
+          sync_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          error_count?: number
+          frequency?: string
+          id?: string
+          integration_id?: string
+          is_active?: boolean
+          last_error?: string | null
+          last_run?: string | null
+          next_run?: string
+          sync_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sync_schedules_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "crm_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhook_events: {
+        Row: {
+          created_at: string
+          event_data: Json
+          event_type: string
+          external_pool_id: string | null
+          id: string
+          integration_id: string
+          processed: boolean
+          source: string
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json
+          event_type: string
+          external_pool_id?: string | null
+          id?: string
+          integration_id: string
+          processed?: boolean
+          source: string
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json
+          event_type?: string
+          external_pool_id?: string | null
+          id?: string
+          integration_id?: string
+          processed?: boolean
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_events_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "crm_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

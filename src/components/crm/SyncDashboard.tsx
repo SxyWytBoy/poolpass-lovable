@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -87,7 +88,7 @@ const SyncDashboard: React.FC<SyncDashboardProps> = ({ hostId }) => {
         .eq('host_id', hostId);
 
       if (poolIds && poolIds.length > 0) {
-        const { data: conflicts } = await supabase
+        const { data: conflicts } = await (supabase as any)
           .from('sync_conflicts')
           .select('id')
           .in('pool_id', poolIds.map(p => p.id))

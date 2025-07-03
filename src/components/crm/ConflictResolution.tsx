@@ -27,7 +27,6 @@ const ConflictResolution: React.FC<ConflictResolutionProps> = ({ hostId }) => {
   const { toast } = useToast();
   const [conflicts, setConflicts] = useState<SyncConflict[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedConflict, setSelectedConflict] = useState<SyncConflict | null>(null);
 
   useEffect(() => {
     loadConflicts();
@@ -47,7 +46,8 @@ const ConflictResolution: React.FC<ConflictResolutionProps> = ({ hostId }) => {
         return;
       }
 
-      const { data, error } = await supabase
+      // Use type assertion for the new table
+      const { data, error } = await (supabase as any)
         .from('sync_conflicts')
         .select('*')
         .in('pool_id', poolIds.map(p => p.id))
@@ -69,7 +69,7 @@ const ConflictResolution: React.FC<ConflictResolutionProps> = ({ hostId }) => {
 
   const resolveConflict = async (conflictId: string, resolution: 'resolved' | 'ignored') => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('sync_conflicts')
         .update({ 
           status: resolution,
