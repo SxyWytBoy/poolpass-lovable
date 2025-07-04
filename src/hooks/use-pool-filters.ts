@@ -4,7 +4,7 @@ import { PoolItem } from '@/components/pools/PoolGrid';
 import { useToast } from '@/hooks/use-toast';
 
 export const usePoolFilters = (pools: PoolItem[]) => {
-  const [priceRange, setPriceRange] = useState<number[]>([0, 300]);
+  const [priceRange, setPriceRange] = useState<number[]>([0, 200]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [poolType, setPoolType] = useState<string>("all");
   const [sortOrder, setSortOrder] = useState<string>("price_asc");
@@ -12,7 +12,7 @@ export const usePoolFilters = (pools: PoolItem[]) => {
   
   // Reset filters function
   const resetFilters = () => {
-    setPriceRange([0, 300]);
+    setPriceRange([0, 200]);
     setSelectedAmenities([]);
     setPoolType("all");
     
