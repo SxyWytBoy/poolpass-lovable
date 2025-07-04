@@ -5,6 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useLocation } from '@/contexts/LocationContext';
 
 interface PoolFiltersProps {
   priceRange: number[];
@@ -29,6 +30,10 @@ const PoolFilters = ({
   clearFilters,
   className
 }: PoolFiltersProps) => {
+  const { currentLocation, currencySymbol } = useLocation();
+  
+  // Set max price based on location
+  const maxPrice = currentLocation === 'london' ? 200 : 2500;
   
   const handleAmenityChange = (amenity: string) => {
     if (selectedAmenities.includes(amenity)) {
@@ -47,17 +52,17 @@ const PoolFilters = ({
         <h3 className="text-sm font-medium mb-3">Price Range (per day)</h3>
         <div className="px-2">
           <Slider
-            defaultValue={[0, 200]}
+            defaultValue={[0, maxPrice]}
             min={0}
-            max={200}
-            step={5}
+            max={maxPrice}
+            step={currentLocation === 'london' ? 5 : 50}
             value={priceRange}
             onValueChange={setPriceRange}
             className="mb-2"
           />
           <div className="flex justify-between text-sm text-gray-500">
-            <span>£{priceRange[0]}</span>
-            <span>£{priceRange[1]}</span>
+            <span>{currencySymbol}{priceRange[0]}</span>
+            <span>{currencySymbol}{priceRange[1]}</span>
           </div>
         </div>
       </div>

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Star, ArrowRight } from 'lucide-react';
@@ -14,6 +15,7 @@ import {
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { cn } from '@/lib/utils';
 import { toast } from '@/components/ui/use-toast';
+import { useLocation } from '@/contexts/LocationContext';
 
 interface PoolCardProps {
   id: string;
@@ -42,6 +44,7 @@ const PoolCard = ({
   fallbackImage,
   className
 }: PoolCardProps) => {
+  const { currencySymbol } = useLocation();
   
   const handleQuickViewClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -118,7 +121,7 @@ const PoolCard = ({
         
         <CardFooter className="p-4 pt-0 flex justify-between items-center">
           <div className="text-pool-primary">
-            <span className="font-bold text-lg">£{price}</span>
+            <span className="font-bold text-lg">{currencySymbol}{price}</span>
             <span className="text-sm text-gray-500">/day</span>
           </div>
           <Button 

@@ -7,12 +7,19 @@ import PoolFilters from '@/components/pools/PoolFilters';
 import PoolGrid from '@/components/pools/PoolGrid';
 import PoolResultsHeader from '@/components/pools/PoolResultsHeader';
 import SearchHeader from '@/components/pools/SearchHeader';
+import LocationSwitcher from '@/components/LocationSwitcher';
 import { usePoolFilters } from '@/hooks/use-pool-filters';
 import { realHotelPools } from '@/data/mockPools';
+import { capeTownHotelPools } from '@/data/capetonPools';
 import { amenitiesOptions } from '@/constants/amenities';
+import { useLocation } from '@/contexts/LocationContext';
 
 const Pools = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const { currentLocation } = useLocation();
+  
+  // Use appropriate pool data based on location
+  const poolData = currentLocation === 'london' ? realHotelPools : capeTownHotelPools;
   
   const {
     priceRange,
@@ -25,7 +32,7 @@ const Pools = () => {
     setSortOrder,
     sortedPools,
     resetFilters
-  } = usePoolFilters(realHotelPools);
+  } = usePoolFilters(poolData);
   
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortOrder(e.target.value);
@@ -39,6 +46,11 @@ const Pools = () => {
         <SearchHeader />
         
         <div className="container mx-auto px-4 py-8">
+          {/* Location Switcher */}
+          <div className="mb-6">
+            <LocationSwitcher />
+          </div>
+          
           <div className="lg:flex gap-6">
             <MobileFilterToggle 
               isFilterOpen={isFilterOpen} 
