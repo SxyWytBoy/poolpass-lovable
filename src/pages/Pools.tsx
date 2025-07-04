@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -7,80 +8,11 @@ import PoolGrid, { PoolItem } from '@/components/pools/PoolGrid';
 import PoolResultsHeader from '@/components/pools/PoolResultsHeader';
 import SearchHeader from '@/components/pools/SearchHeader';
 import { useToast } from '@/components/ui/use-toast';
-
-// Mock pool data
-const poolsData = [
-  {
-    id: "1",
-    name: "Luxury Indoor Pool & Spa",
-    location: "Kensington, London",
-    price: 45,
-    rating: 4.9,
-    reviews: 128,
-    image: "https://images.unsplash.com/photo-1572331165267-854da2b10ccc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
-    indoorOutdoor: "indoor" as const,
-    amenities: ["Heated", "Loungers", "Towels Provided", "Jacuzzi"]
-  },
-  {
-    id: "2",
-    name: "Rooftop Infinity Pool",
-    location: "Manchester City Centre",
-    price: 60,
-    rating: 4.7,
-    reviews: 85,
-    image: "https://images.unsplash.com/photo-1477120292453-dbba2d987c24?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
-    indoorOutdoor: "outdoor" as const,
-    amenities: ["Heated", "City View", "Bar Service", "Loungers"]
-  },
-  {
-    id: "3",
-    name: "Country House Pool & Gardens",
-    location: "Cotswolds",
-    price: 38,
-    rating: 4.8,
-    reviews: 63,
-    image: "https://images.unsplash.com/photo-1551123847-4041291bec0c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
-    indoorOutdoor: "both" as const,
-    amenities: ["Garden Access", "Changing Rooms", "Food Available"]
-  },
-  {
-    id: "4",
-    name: "Boutique Hotel Swim Club",
-    location: "Brighton",
-    price: 55,
-    rating: 4.6,
-    reviews: 42,
-    image: "https://images.unsplash.com/photo-1540539234-c14a20fb7c7b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
-    indoorOutdoor: "indoor" as const,
-    amenities: ["Heated", "Sauna", "Spa", "Bar Service"]
-  },
-  {
-    id: "5",
-    name: "Modern Loft with Private Pool",
-    location: "Liverpool",
-    price: 35,
-    rating: 4.5,
-    reviews: 29,
-    image: "https://images.unsplash.com/photo-1529290130-4ca3753253ae?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
-    indoorOutdoor: "indoor" as const,
-    amenities: ["Heated", "WiFi", "Changing Rooms"]
-  },
-  {
-    id: "6",
-    name: "Countryside Retreat Pool",
-    location: "Lake District",
-    price: 42,
-    rating: 4.9,
-    reviews: 56,
-    image: "https://images.unsplash.com/photo-1519046004466-a539881296e5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80",
-    indoorOutdoor: "outdoor" as const,
-    amenities: ["Heated", "Loungers", "Nature Views", "BBQ Area"]
-  },
-];
+import { realHotelPools } from '@/data/mockPools';
 
 const amenitiesOptions = [
   "Heated",
-  "Loungers",
+  "Loungers", 
   "Towels Provided",
   "Food Available",
   "Changing Rooms",
@@ -90,11 +22,29 @@ const amenitiesOptions = [
   "Bar Service",
   "Parking",
   "Accessible",
-  "Child Friendly"
+  "Child Friendly",
+  "City Views",
+  "Sea Views",
+  "Mountain Views",
+  "Spa",
+  "Steam Room",
+  "Hydrotherapy",
+  "Fitness Center",
+  "Business Center",
+  "Beach Access",
+  "Garden Setting",
+  "Historic Property",
+  "Luxury Service",
+  "Infinity Pool",
+  "Private Cabanas",
+  "Champagne Service",
+  "Michelin Star Restaurant",
+  "Wildlife Views",
+  "Northern Lights"
 ];
 
 const Pools = () => {
-  const [priceRange, setPriceRange] = useState<number[]>([0, 100]);
+  const [priceRange, setPriceRange] = useState<number[]>([0, 300]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [poolType, setPoolType] = useState<string>("all");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -103,7 +53,7 @@ const Pools = () => {
   
   // Reset filters function
   const resetFilters = () => {
-    setPriceRange([0, 100]);
+    setPriceRange([0, 300]);
     setSelectedAmenities([]);
     setPoolType("all");
     
@@ -114,7 +64,7 @@ const Pools = () => {
   };
   
   // Filter pools based on selected filters
-  const filteredPools = poolsData.filter(pool => {
+  const filteredPools = realHotelPools.filter(pool => {
     // Filter by price
     if (pool.price < priceRange[0] || pool.price > priceRange[1]) return false;
     
