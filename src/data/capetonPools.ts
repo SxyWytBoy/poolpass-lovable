@@ -10,7 +10,7 @@ export const capeTownHotelPools: PoolItem[] = [
     price: 1200,
     rating: 4.9,
     reviews: 187,
-    image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "Table Mountain Views", "Waterfront Location", "Luxury Spa", "Private Cabanas", "Champagne Service"]
   },
@@ -21,7 +21,7 @@ export const capeTownHotelPools: PoolItem[] = [
     price: 950,
     rating: 4.8,
     reviews: 143,
-    image: "https://images.unsplash.com/photo-1544984243-ec57ea16fe25?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "Harbor Views", "Luxury Service", "Towels Provided", "Bar Service", "Historic Hotel"]
   },
@@ -32,7 +32,7 @@ export const capeTownHotelPools: PoolItem[] = [
     price: 850,
     rating: 4.7,
     reviews: 234,
-    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1477120292453-dbba2d987c24?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "Table Mountain Views", "Harbor Views", "Loungers", "Poolside Service", "Luxury Resort"]
   },
@@ -54,7 +54,7 @@ export const capeTownHotelPools: PoolItem[] = [
     price: 1500,
     rating: 4.9,
     reviews: 167,
-    image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "360° Views", "Designer Hotel", "Art Collection", "Champagne Service", "Infinity Pool"]
   },
@@ -78,7 +78,7 @@ export const capeTownHotelPools: PoolItem[] = [
     price: 1300,
     rating: 4.9,
     reviews: 245,
-    image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1507038772120-7fff76f79d79?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "Ocean Views", "Twelve Apostles Views", "Luxury Spa", "Infinity Pool", "Champagne Bar"]
   },
@@ -89,7 +89,7 @@ export const capeTownHotelPools: PoolItem[] = [
     price: 980,
     rating: 4.7,
     reviews: 189,
-    image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "Beachfront", "Ocean Views", "Beach Access", "Loungers", "Poolside Dining"]
   },
@@ -124,7 +124,7 @@ export const capeTownHotelPools: PoolItem[] = [
     price: 920,
     rating: 4.7,
     reviews: 198,
-    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "Award-winning Gardens", "Historic Hotel", "Mountain Views", "Spa", "Fine Dining"]
   },
@@ -135,7 +135,7 @@ export const capeTownHotelPools: PoolItem[] = [
     price: 720,
     rating: 4.6,
     reviews: 145,
-    image: "https://images.unsplash.com/photo-1615394717477-43fe6ee0def3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "Historic Estate", "Wine Tasting", "Mountain Views", "Boutique Luxury", "Gardens"]
   },
@@ -172,7 +172,7 @@ export const capeTownHotelPools: PoolItem[] = [
     price: 1400,
     rating: 4.9,
     reviews: 123,
-    image: "https://images.unsplash.com/photo-1477120292453-dbba2d987c24?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "Whale Watching", "Ocean Views", "Clifftop Location", "Luxury Boutique", "Infinity Pool"]
   },
@@ -185,7 +185,7 @@ export const capeTownHotelPools: PoolItem[] = [
     price: 890,
     rating: 4.8,
     reviews: 167,
-    image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "Valley Views", "Wine Estate", "Richard Branson Property", "Luxury Service", "Mountain Views"]
   },
@@ -196,7 +196,7 @@ export const capeTownHotelPools: PoolItem[] = [
     price: 550,
     rating: 4.4,
     reviews: 98,
-    image: "https://images.unsplash.com/photo-1615394717477-43fe6ee0def3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "Working Winery", "Family Friendly", "Wine Tasting", "Country Setting", "Mountain Views"]
   },
@@ -209,7 +209,7 @@ export const capeTownHotelPools: PoolItem[] = [
     price: 420,
     rating: 4.2,
     reviews: 189,
-    image: "https://images.unsplash.com/photo-1544984243-ec57ea16fe25?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "Garden Setting", "Family Friendly", "Rugby Stadium Views", "Business Center", "Parking"]
   },
@@ -220,7 +220,7 @@ export const capeTownHotelPools: PoolItem[] = [
     price: 680,
     rating: 4.6,
     reviews: 145,
-    image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "River Views", "Historic Property", "Spa", "Award-winning Restaurant", "Garden Setting"]
   },
@@ -233,7 +233,7 @@ export const capeTownHotelPools: PoolItem[] = [
     price: 320,
     rating: 4.1,
     reviews: 167,
-    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "Airport Convenience", "Business Center", "24/7 Access", "Shuttle Service", "Transit Hotel"]
   },
@@ -246,7 +246,7 @@ export const capeTownHotelPools: PoolItem[] = [
     price: 2200,
     rating: 4.9,
     reviews: 89,
-    image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "Ultra-luxury", "Ocean Views", "Art Collection", "Butler Service", "Private Beach Access"]
   }
