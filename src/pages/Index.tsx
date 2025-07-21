@@ -23,7 +23,7 @@ const featuredPools = [
   {
     id: "2",
     name: "Rooftop Infinity Pool",
-    location: "Manchester City Centre",
+    location: "Battersea, London",
     price: 60,
     rating: 4.7,
     reviews: 85,
@@ -34,7 +34,7 @@ const featuredPools = [
   {
     id: "3",
     name: "Country House Pool & Gardens",
-    location: "Cotswolds",
+    location: "Greater London",
     price: 38,
     rating: 4.8,
     reviews: 63,
