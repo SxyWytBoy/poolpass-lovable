@@ -229,7 +229,7 @@ export const realHotelPools: PoolItem[] = [
     price: 68,
     rating: 4.8,
     reviews: 245,
-    image: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1615394717477-43fe6ee0def3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "both" as const,
     amenities: ["Heated", "Championship Golf", "Sequoia Spa", "Family Pool", "Luxury Resort", "Country Estate"]
   },
@@ -253,7 +253,7 @@ export const realHotelPools: PoolItem[] = [
     price: 35,
     rating: 4.2,
     reviews: 189,
-    image: "https://images.unsplash.com/photo-1572331165267-854da2b10ccc?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1544984243-ec57ea16fe25?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "indoor" as const,
     amenities: ["Heated", "Fitness Center", "Family Friendly", "Windsor Castle Views", "Leisure Club"]
   },
@@ -277,7 +277,7 @@ export const realHotelPools: PoolItem[] = [
     price: 42,
     rating: 4.3,
     reviews: 167,
-    image: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "indoor" as const,
     amenities: ["Heated", "City Centre", "University Town", "Fitness Center", "Business Facilities"]
   },
@@ -290,7 +290,7 @@ export const realHotelPools: PoolItem[] = [
     price: 82,
     rating: 4.6,
     reviews: 178,
-    image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1507038772120-7fff76f79d79?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "indoor" as const,
     amenities: ["Heated", "Boutique Design", "Underground Pool", "Theatre District", "Firmdale Hotels", "Unique Design"]
   },
@@ -301,7 +301,7 @@ export const realHotelPools: PoolItem[] = [
     price: 78,
     rating: 4.5,
     reviews: 145,
-    image: "https://images.unsplash.com/photo-1544551763-77ef2d0cfc6c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1570197788417-0e82375c9371?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "indoor" as const,
     amenities: ["Heated", "Thames Views", "Agua Spa", "Modern Design", "Riverside Location", "Spa Treatments"]
   },
@@ -312,7 +312,7 @@ export const realHotelPools: PoolItem[] = [
     price: 125,
     rating: 4.8,
     reviews: 98,
-    image: "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
+    image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80",
     indoorOutdoor: "indoor" as const,
     amenities: ["Heated", "Celebrity Hotspot", "Historic Firehouse", "Exclusive Access", "Luxury Service", "Private Club Feel"]
   }
