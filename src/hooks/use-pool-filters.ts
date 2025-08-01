@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { PoolItem } from '@/components/pools/PoolGrid';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from '@/contexts/LocationContext';
@@ -12,6 +12,11 @@ export const usePoolFilters = (pools: PoolItem[]) => {
   const maxPrice = currentLocation === 'london' ? 200 : 2500;
   
   const [priceRange, setPriceRange] = useState<number[]>([0, maxPrice]);
+  
+  // Update price range when location changes
+  useEffect(() => {
+    setPriceRange([0, maxPrice]);
+  }, [currentLocation, maxPrice]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [poolType, setPoolType] = useState<string>("all");
   const [sortOrder, setSortOrder] = useState<string>("price_asc");
