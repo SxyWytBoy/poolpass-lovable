@@ -14,7 +14,7 @@ const WaitlistLanding = () => {
         <section
           className="relative min-h-[360px] md:min-h-[400px]"
           style={{
-            backgroundImage: `url('/lovable-uploads/waitlist-water.jpg')`,
+            backgroundImage: `url('/images/waitlist-water.jpg')`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',

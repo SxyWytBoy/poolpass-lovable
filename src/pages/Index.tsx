@@ -16,7 +16,7 @@ const featuredPools = [
     price: 45,
     rating: 4.9,
     reviews: 128,
-    image: "/lovable-uploads/indoor-swimming-pool.jpg",  // updated image path here
+    image: "/images/indoor-swimming-pool.jpg",
     indoorOutdoor: "indoor" as const,
     amenities: ["Heated", "Loungers", "Towels Provided", "Jacuzzi"]
   },
@@ -27,7 +27,7 @@ const featuredPools = [
     price: 60,
     rating: 4.7,
     reviews: 85,
-    image: "/lovable-uploads/outdoor-swimming-pool.jpg",
+    image: "/images/outdoor-swimming-pool.jpg",
     indoorOutdoor: "outdoor" as const,
     amenities: ["Heated", "City View", "Bar Service", "Loungers"]
   },
@@ -38,7 +38,7 @@ const featuredPools = [
     price: 38,
     rating: 4.8,
     reviews: 63,
-    image: "/lovable-uploads/indoor-outdoor-swimming-pool.jpg",
+    image: "/images/indoor-outdoor-swimming-pool.jpg",
     indoorOutdoor: "both" as const,
     amenities: ["Garden Access", "Changing Rooms", "Food Available"]
   }
