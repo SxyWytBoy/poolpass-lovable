@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -1449,38 +1449,38 @@ export type Database = {
         Args: { host_uuid: string }
         Returns: {
           integration_id: string
-          provider: Database["public"]["Enums"]["crm_provider"]
           integration_name: string
           is_active: boolean
           last_sync_at: string
+          provider: Database["public"]["Enums"]["crm_provider"]
           sync_frequency_hours: number
         }[]
       }
       get_integrations_due_for_sync: {
         Args: Record<PropertyKey, never>
         Returns: {
-          integration_id: string
           host_id: string
-          provider: Database["public"]["Enums"]["crm_provider"]
+          integration_id: string
           integration_name: string
           last_sync_at: string
+          provider: Database["public"]["Enums"]["crm_provider"]
           sync_frequency_hours: number
         }[]
       }
       get_pending_host_applications: {
         Args: Record<PropertyKey, never>
         Returns: {
-          waitlist_id: string
           business_name: string
           contact_name: string
-          email: string
-          location: string
-          pool_type: string[]
-          current_use: string[]
-          interest_level: string[]
-          crm_provider: string
           created_at: string
+          crm_provider: string
+          current_use: string[]
+          email: string
+          interest_level: string[]
+          location: string
           onboarding_status: string
+          pool_type: string[]
+          waitlist_id: string
         }[]
       }
       initialize_host_onboarding: {
