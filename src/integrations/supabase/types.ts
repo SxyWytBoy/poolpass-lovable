@@ -1264,6 +1264,42 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_logs: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          resource_id: string | null
+          resource_type: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          resource_id?: string | null
+          resource_type?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          resource_id?: string | null
+          resource_type?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       security_deposits: {
         Row: {
           amount: number
@@ -1445,6 +1481,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      decrypt_credential: {
+        Args: { encrypted_text: string; encryption_key?: string }
+        Returns: string
+      }
+      encrypt_credential: {
+        Args: { credential_text: string; encryption_key?: string }
+        Returns: string
+      }
       get_host_crm_integrations: {
         Args: { host_uuid: string }
         Returns: {
